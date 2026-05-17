@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GoonZu Craft Calculator</title>
+<script src="craftingData.js"></script>
+<style>
+/* ── Reset & base ──────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:      #1a1a2e;
+  --bg2:     #16213e;
+  --bg3:     #0f1e3a;
+  --bg4:     #0a0f1e;
+  --border:  #2d2d5e;
+  --border2: #3b3b7a;
+  --text:    #e0e0e0;
+  --muted:   #9ca3af;
+  --faint:   #6b7280;
+  --purple:  #a78bfa;
+  --purple2: #7c3aed;
+  --purple3: #312e81;
+  --blue:    #93c5fd;
+  --green:   #34d399;
+  --yellow:  #fbbf24;
+  --red:     #f87171;
+}
+html { font-size: 15px; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: 'Courier New', Courier, monospace;
+  min-height: 100vh;
+}
+
+/* ── Layout ────────────────────────────────────────────────────────────────── */
+.header {
+  background: var(--bg2); border-bottom: 1px solid var(--border);
+  padding: 14px 24px; display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.header h1 { color: var(--purple); font-size: 1.2rem; }
+.header-right { display: flex; gap: 10px; align-items: center; }
+
+main { max-width: 960px; margin: 0 auto; padding: 20px 16px 60px; }
+
+/* ── Cards ─────────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 18px; margin-bottom: 14px;
+}
+.card-title {
+  font-size: .7rem; color: var(--muted); text-transform: uppercase;
+  letter-spacing: .07em; margin-bottom: 12px;
+}
+
+/* ── Controls ──────────────────────────────────────────────────────────────── */
+.controls { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end; }
+label { display: block; font-size: .75rem; color: var(--muted); margin-bottom: 5px; }
+select, input[type=number] {
+  background: var(--bg3); border: 1px solid var(--border2); color: var(--text);
+  padding: 7px 11px; border-radius: 6px; font-family: inherit; font-size: .95rem;
+}
+select { min-width: 220px; max-width: 340px; }
+input[type=number] { width: 90px; }
+
+/* ── Item search combobox ───────────────────────────────────────────────────── */
+.combo-wrap { position: relative; min-width: 260px; }
+.combo-input {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border2);
+  color: var(--text); padding: 7px 30px 7px 11px; border-radius: 6px;
+  font-family: inherit; font-size: .95rem; cursor: text;
+}
+.combo-input:focus { outline: none; border-color: var(--purple); }
+.combo-clear {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  color: var(--faint); cursor: pointer; font-size: 1rem; line-height: 1;
+  display: none;
+}
+.combo-clear.visible { display: block; }
+.combo-dropdown {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  background: var(--bg2); border: 1px solid var(--border2); border-radius: 6px;
+  max-height: 280px; overflow-y: auto; z-index: 500;
+  display: none; box-shadow: 0 8px 24px rgba(0,0,0,.5);
+}
+.combo-dropdown.open { display: block; }
+.combo-group {
+  font-size: .62rem; color: var(--faint); text-transform: uppercase;
+  letter-spacing: .07em; padding: 8px 12px 3px;
+  border-top: 1px solid var(--border); margin-top: 2px;
+}
+.combo-group:first-child { border-top: none; margin-top: 0; }
+.combo-opt {
+  padding: 7px 12px; font-size: .88rem; cursor: pointer; color: var(--text);
+}
+.combo-opt:hover, .combo-opt.active { background: var(--bg3); color: var(--purple); }
+.combo-empty { padding: 12px; font-size: .82rem; color: var(--faint); text-align: center; }
+
+/* ── Buttons ───────────────────────────────────────────────────────────────── */
+.btn {
+  background: var(--purple2); color: #fff; border: none;
+  padding: 8px 16px; border-radius: 6px; cursor: pointer;
+  font-family: inherit; font-size: .88rem; transition: background .15s;
+}
+.btn:hover { background: #6d28d9; }
+.btn-outline {
+  background: transparent; border: 1px solid var(--border2); color: var(--blue);
+}
+.btn-outline:hover { background: var(--bg3); }
+.btn-sm { padding: 5px 11px; font-size: .78rem; }
+
+/* ── Summary ───────────────────────────────────────────────────────────────── */
+.summary { display: flex; gap: 28px; flex-wrap: wrap; }
+.s-item .val { font-size: 1.6rem; color: var(--purple); font-weight: bold; }
+.s-item .lbl { font-size: .72rem; color: var(--faint); margin-top: 2px; }
+
+/* ── Chain cards ───────────────────────────────────────────────────────────── */
+.chain-row {
+  display: flex; align-items: flex-start; gap: 0;
+  overflow-x: auto; padding-bottom: 6px;
+}
+.chain-sep { color: var(--faint); font-size: 1.1rem; align-self: center; padding: 0 6px; flex-shrink: 0; }
+.wc {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px; min-width: 150px; max-width: 190px; flex-shrink: 0;
+  display: flex; flex-direction: column; gap: 7px;
+}
+.wc.target { border-color: var(--purple); background: #1a1040; }
+.wc-badge {
+  font-size: .58rem; padding: 2px 5px; border-radius: 3px; display: inline-block;
+  background: #1c3a1c; color: #6ee7b7;
+}
+.wc.target .wc-badge { background: var(--purple3); color: #c4b5fd; }
+.wc-name { font-size: .8rem; color: var(--blue); font-weight: bold; line-height: 1.3; }
+.wc.target .wc-name { color: #ddd6fe; }
+.wc-stats { font-size: .75rem; color: var(--muted); line-height: 1.7; }
+.wc-stats .v { color: var(--text); }
+.wc-toggle {
+  font-size: .7rem; color: #818cf8; cursor: pointer; background: none;
+  border: none; font-family: inherit; padding: 0; text-align: left;
+}
+.wc-toggle:hover { text-decoration: underline; }
+.wc-mat-list { display: none; font-size: .7rem; margin-top: 2px; }
+.wc-mat-list.open { display: block; }
+.wc-mat-list dl { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; }
+.wc-mat-list dt { color: var(--muted); }
+.wc-mat-list dd { text-align: right; white-space: nowrap; }
+
+/* ── Material tables ───────────────────────────────────────────────────────── */
+table { width: 100%; border-collapse: collapse; }
+th {
+  font-size: .7rem; color: var(--muted); text-align: left;
+  padding: 5px 8px; border-bottom: 1px solid var(--border);
+}
+td { padding: 7px 8px; border-bottom: 1px solid #1a1a3a; font-size: .88rem; }
+tr:last-child td { border-bottom: none; }
+.sec-label {
+  font-size: .65rem; color: var(--faint); text-transform: uppercase;
+  letter-spacing: .07em; padding: 10px 8px 4px; border-top: 1px solid var(--border);
+}
+.sec-label:first-child { border-top: none; padding-top: 0; }
+
+/* tags */
+.tag { display: inline-block; font-size: .58rem; padding: 1px 5px; border-radius: 3px; margin-left: 5px; vertical-align: middle; }
+.tag-c { background: var(--purple3); color: #a5b4fc; }
+
+/* sub-rows toggle */
+.mat-toggle { cursor: pointer; color: #818cf8; font-size: .72rem; margin-left: 6px; }
+.mat-toggle:hover { text-decoration: underline; }
+.sub-rows { display: none; }
+.sub-rows.open { display: table-row-group; }
+.sub-row td { background: var(--bg4); color: var(--muted); font-size: .8rem; padding: 5px 8px 5px 26px; border-bottom: 1px solid #11112a; }
+
+/* progress */
+.bar-wrap { background: #0a0a1a; border-radius: 4px; height: 6px; width: 100px; overflow: hidden; display: inline-block; vertical-align: middle; }
+.bar { height: 100%; border-radius: 4px; }
+.bar.ok   { background: var(--green); }
+.bar.warn { background: var(--yellow); }
+.bar.bad  { background: var(--red); }
+.pct { font-size: .75rem; margin-left: 5px; }
+.ok   { color: var(--green); }
+.warn { color: var(--yellow); }
+.bad  { color: var(--red); }
+
+#grandCard { border-color: #3b2d5e; }
+#grandCard .card-title { color: var(--purple); }
+
+.hidden { display: none !important; }
+
+/* ── Inventory Panel ───────────────────────────────────────────────────────── */
+.inv-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  display: flex; justify-content: flex-end;
+}
+.inv-overlay.hidden { display: none !important; }
+.inv-backdrop { flex: 1; background: rgba(0,0,0,.5); }
+.inv-panel {
+  width: 340px; max-width: 95vw; background: var(--bg2);
+  border-left: 1px solid var(--border); display: flex; flex-direction: column;
+  height: 100vh; overflow: hidden;
+}
+.inv-header {
+  padding: 14px 16px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+  flex-shrink: 0;
+}
+.inv-header h2 { font-size: .95rem; color: var(--purple); }
+.inv-toolbar {
+  padding: 10px 16px; border-bottom: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 8px; flex-shrink: 0;
+}
+.inv-search {
+  background: var(--bg3); border: 1px solid var(--border2); color: var(--text);
+  padding: 7px 10px; border-radius: 6px; font-family: inherit; font-size: .85rem; width: 100%;
+}
+.inv-toolbar-btns { display: flex; gap: 8px; }
+.inv-list { flex: 1; overflow-y: auto; padding: 8px 0; }
+.inv-group-label {
+  font-size: .62rem; color: var(--faint); text-transform: uppercase;
+  letter-spacing: .07em; padding: 8px 16px 3px;
+}
+.inv-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 5px 16px; gap: 10px;
+}
+.inv-row.relevant { background: #0f1e3a; }
+.inv-row:hover { background: #111a30; }
+.inv-name { font-size: .82rem; flex: 1; color: var(--text); }
+.inv-name.relevant { color: var(--blue); }
+.inv-qty {
+  background: var(--bg4); border: 1px solid var(--border2); color: var(--text);
+  padding: 3px 7px; border-radius: 5px; font-family: inherit; font-size: .82rem;
+  width: 70px; text-align: right;
+}
+.inv-footer {
+  padding: 10px 16px; border-top: 1px solid var(--border);
+  font-size: .7rem; color: var(--faint); flex-shrink: 0;
+}
+
+/* ── Import/Export modal ───────────────────────────────────────────────────── */
+.modal-bg {
+  position: fixed; inset: 0; background: rgba(0,0,0,.7);
+  z-index: 300; display: flex; align-items: center; justify-content: center;
+}
+.modal-bg.hidden { display: none !important; }
+.modal {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 20px; width: 440px; max-width: 95vw;
+}
+.modal h3 { color: var(--purple); font-size: 1rem; margin-bottom: 12px; }
+.modal textarea {
+  width: 100%; height: 180px; background: var(--bg4); border: 1px solid var(--border2);
+  color: var(--text); padding: 10px; border-radius: 6px; font-family: monospace; font-size: .8rem;
+  resize: vertical;
+}
+.modal-btns { display: flex; gap: 10px; margin-top: 12px; justify-content: flex-end; }
+</style>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────────────────────────────── -->
+<header class="header">
+  <h1>GoonZu Craft Calculator</h1>
+  <div class="header-right">
+    <span id="invCount" style="font-size:.75rem;color:var(--faint)"></span>
+    <button class="btn btn-outline" onclick="openInv()">My Inventory</button>
+  </div>
+</header>
+
+<!-- ── Main ────────────────────────────────────────────────────────────────── -->
+<main>
+
+  <!-- Controls -->
+  <div class="card">
+    <div class="controls">
+      <div>
+        <label>Item to craft</label>
+        <div class="combo-wrap" id="comboWrap">
+          <input class="combo-input" id="comboInput" type="text"
+            placeholder="Search item…" autocomplete="off"
+            oninput="comboFilter(this.value)"
+            onfocus="comboOpen()"
+            onkeydown="comboKey(event)">
+          <span class="combo-clear" id="comboClear" onclick="comboClearSel()">✕</span>
+          <div class="combo-dropdown" id="comboDrop"></div>
+        </div>
+      </div>
+      <div>
+        <label>Quantity</label>
+        <input type="number" id="qty" value="1" min="1" max="99999" oninput="recalc()">
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="card hidden" id="summaryCard">
+    <div class="card-title">Summary</div>
+    <div class="summary">
+      <div class="s-item"><div class="val" id="sCanCraft">—</div><div class="lbl" id="sLbl">can craft</div></div>
+      <div class="s-item"><div class="val" id="sPct">—</div><div class="lbl">Overall progress</div></div>
+      <div class="s-item"><div class="val" id="sBottleneck" style="font-size:1rem">—</div><div class="lbl">Bottleneck</div></div>
+    </div>
+  </div>
+
+  <!-- Chain -->
+  <div class="card hidden" id="chainCard">
+    <div class="card-title">Weapon upgrade chain</div>
+    <div class="chain-row" id="chainRow"></div>
+  </div>
+
+  <!-- Own materials -->
+  <div class="card hidden" id="matCard">
+    <div class="card-title">
+      Materials — <span id="matQtyLbl">1</span> × <span id="matItemLbl"></span>
+    </div>
+    <table><thead><tr><th>Material</th><th>Need</th><th>Have</th><th>Missing</th><th>Progress</th></tr></thead>
+    <tbody id="matBody"></tbody></table>
+  </div>
+
+  <!-- Grand total -->
+  <div class="card hidden" id="grandCard">
+    <div class="card-title">Grand total — all raw materials (full chain)</div>
+    <table><thead><tr><th>Material</th><th>Total need</th><th>Have</th><th>Missing</th><th>Progress</th></tr></thead>
+    <tbody id="grandBody"></tbody></table>
+  </div>
+
+</main>
+
+<!-- ── Inventory panel ──────────────────────────────────────────────────────── -->
+<div class="inv-overlay hidden" id="invOverlay">
+  <div class="inv-backdrop" onclick="closeInv()"></div>
+  <div class="inv-panel">
+    <div class="inv-header">
+      <h2>My Inventory</h2>
+      <button class="btn btn-sm btn-outline" onclick="closeInv()">✕ Close</button>
+    </div>
+    <div class="inv-toolbar">
+      <input class="inv-search" type="search" placeholder="Search material…" oninput="renderInvList(this.value)" id="invSearch">
+      <div class="inv-toolbar-btns">
+        <button class="btn btn-sm btn-outline" onclick="openImport()">Import JSON</button>
+        <button class="btn btn-sm btn-outline" onclick="doExport()">Export JSON</button>
+        <button class="btn btn-sm btn-outline" style="color:var(--red);border-color:var(--red)" onclick="clearInv()">Clear all</button>
+      </div>
+    </div>
+    <div class="inv-list" id="invList"></div>
+    <div class="inv-footer" id="invFooter"></div>
+  </div>
+</div>
+
+<!-- ── Import/Export modal ──────────────────────────────────────────────────── -->
+<div class="modal-bg hidden" id="importModal">
+  <div class="modal">
+    <h3>Import Inventory (JSON)</h3>
+    <textarea id="importTa" placeholder='{"Gold Bar": 100, "Iron Ore": 500, ...}'></textarea>
+    <div class="modal-btns">
+      <button class="btn btn-outline" onclick="closeImport()">Cancel</button>
+      <button class="btn" onclick="doImport()">Import</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────────────
+
+const CATEGORY_LABELS = {
+  axe:'Axe', sword:'Sword', spear:'Spear', bow:'Bow', gun:'Gun', cane:'Cane',
+  armor:'Armor', helmet:'Helmet', belt:'Belt', shoe:'Shoes',
+  ring:'Ring', hat:'Hat', cloak:'Cloak', clothes:'Clothes', necklace:'Necklace',
+  fishing:'Fishing', pottery:'Pottery', ironware:'Ironware',
+  stationery:'Stationery', ammunition:'Ammunition',
+  food:'Food', medicine:'Medicine', compound:'Compound', crystal:'Crystal',
+  materials:'Materials (craft)',
+};
+
+// Weapon upgrade chains for guns
+const CHAINS = {
+  "Grenade Launcher (50)":    ["Musketeer's Gun (38)"],
+  "Burst Shotgun (60)":       ["Musketeer's Gun (38)", "Grenade Launcher (50)"],
+  "Sniper's Rifle (70)":      ["Musketeer's Gun (38)", "Grenade Launcher (50)", "Burst Shotgun (60)"],
+  "Hellfire (80)":            ["Musketeer's Gun (38)", "Grenade Launcher (50)", "Burst Shotgun (60)", "Sniper's Rifle (70)"],
+  "Earthquake Launcher (55)": ["Dragon Shotgun (44)"],
+  "Dragon Rifle (65)":        ["Dragon Shotgun (44)", "Earthquake Launcher (55)"],
+  "Taebaek Cannon (75)":      ["Dragon Shotgun (44)", "Earthquake Launcher (55)", "Dragon Rifle (65)"],
+};
+
+// Flat map: item name → recipe
+const ALL_RECIPES = {};
+for (const [cat, items] of Object.entries(craftingData)) {
+  for (const [name, recipe] of Object.entries(items)) {
+    ALL_RECIPES[name] = recipe;
+  }
+}
+
+// Craftable sub-materials
+const CRAFTABLE = craftingData.materials || {};
+
+// All unique ingredient names (for inventory panel)
+const ALL_MATS = (() => {
+  const s = new Set();
+  for (const r of Object.values(ALL_RECIPES)) for (const m of Object.keys(r)) s.add(m);
+  return [...s].sort((a, b) => a.localeCompare(b));
+})();
+
+// ── Inventory ─────────────────────────────────────────────────────────────────
+let INV = {};
+function loadInv() {
+  try { INV = JSON.parse(localStorage.getItem('gz_inv') || '{}'); } catch { INV = {}; }
+}
+function saveInv() {
+  localStorage.setItem('gz_inv', JSON.stringify(INV));
+  localStorage.setItem('gz_inv_ts', new Date().toLocaleString());
+  updateInvCount();
+}
+function getQ(mat) { return INV[mat] || 0; }
+function setQ(mat, qty) {
+  if (qty > 0) INV[mat] = qty; else delete INV[mat];
+  saveInv();
+  recalc();
+}
+function updateInvCount() {
+  const n = Object.keys(INV).length;
+  document.getElementById('invCount').textContent = n ? `${n} items tracked` : '';
+}
+
+// ── Combobox ──────────────────────────────────────────────────────────────────
+// Flat list: [{cat, label, name}]
+const COMBO_ITEMS = [];
+for (const [cat, items] of Object.entries(craftingData)) {
+  for (const name of Object.keys(items)) {
+    COMBO_ITEMS.push({ cat, label: CATEGORY_LABELS[cat] || cat, name });
+  }
+}
+
+let comboSelected = '';   // current item name
+let comboActiveIdx = -1;  // keyboard navigation index
+
+function buildSelector() { /* no-op, replaced by combobox */ }
+
+function comboOpen() {
+  comboFilter(document.getElementById('comboInput').value);
+}
+
+function comboFilter(q) {
+  const drop = document.getElementById('comboDrop');
+  const lower = q.trim().toLowerCase();
+  const filtered = lower
+    ? COMBO_ITEMS.filter(i => i.name.toLowerCase().includes(lower))
+    : COMBO_ITEMS;
+
+  drop.innerHTML = '';
+  comboActiveIdx = -1;
+
+  if (!filtered.length) {
+    drop.innerHTML = `<div class="combo-empty">No items found</div>`;
+    drop.classList.add('open');
+    return;
+  }
+
+  // Group by category
+  let lastCat = null;
+  filtered.forEach((item, idx) => {
+    if (item.cat !== lastCat) {
+      const g = document.createElement('div');
+      g.className = 'combo-group';
+      g.textContent = item.label;
+      drop.appendChild(g);
+      lastCat = item.cat;
+    }
+    const opt = document.createElement('div');
+    opt.className = 'combo-opt';
+    opt.dataset.idx = idx;
+    opt.dataset.name = item.name;
+    // Highlight matched text
+    if (lower) {
+      const i = item.name.toLowerCase().indexOf(lower);
+      opt.innerHTML = item.name.slice(0, i)
+        + `<strong style="color:var(--purple)">${item.name.slice(i, i + lower.length)}</strong>`
+        + item.name.slice(i + lower.length);
+    } else {
+      opt.textContent = item.name;
+    }
+    opt.addEventListener('mousedown', e => { e.preventDefault(); comboSelect(item.name); });
+    drop.appendChild(opt);
+  });
+
+  drop.classList.add('open');
+  document.getElementById('comboClear').classList.toggle('visible', !!q || !!comboSelected);
+}
+
+function comboSelect(name) {
+  comboSelected = name;
+  document.getElementById('comboInput').value = name;
+  document.getElementById('comboDrop').classList.remove('open');
+  document.getElementById('comboClear').classList.add('visible');
+  recalc();
+}
+
+function comboClearSel() {
+  comboSelected = '';
+  document.getElementById('comboInput').value = '';
+  document.getElementById('comboClear').classList.remove('visible');
+  document.getElementById('comboDrop').classList.remove('open');
+  recalc();
+}
+
+function comboKey(e) {
+  const drop = document.getElementById('comboDrop');
+  const opts = [...drop.querySelectorAll('.combo-opt')];
+  if (!drop.classList.contains('open')) { comboOpen(); return; }
+
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    comboActiveIdx = Math.min(comboActiveIdx + 1, opts.length - 1);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    comboActiveIdx = Math.max(comboActiveIdx - 1, 0);
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (comboActiveIdx >= 0 && opts[comboActiveIdx]) {
+      comboSelect(opts[comboActiveIdx].dataset.name);
+    } else if (opts.length === 1) {
+      comboSelect(opts[0].dataset.name);
+    }
+    return;
+  } else if (e.key === 'Escape') {
+    drop.classList.remove('open'); return;
+  } else { return; }
+
+  opts.forEach((o, i) => o.classList.toggle('active', i === comboActiveIdx));
+  if (opts[comboActiveIdx]) opts[comboActiveIdx].scrollIntoView({ block: 'nearest' });
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', e => {
+  if (!document.getElementById('comboWrap').contains(e.target)) {
+    document.getElementById('comboDrop').classList.remove('open');
+    // If user typed partial text without selecting, restore last selection
+    if (comboSelected) document.getElementById('comboInput').value = comboSelected;
+  }
+});
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function flattenRaw(recipe, mult = 1) {
+  const raw = {};
+  for (const [mat, qty] of Object.entries(recipe)) {
+    const need = qty * mult;
+    if (CRAFTABLE[mat]) {
+      const sub = flattenRaw(CRAFTABLE[mat], need);
+      for (const [r, q] of Object.entries(sub)) raw[r] = (raw[r] || 0) + q;
+    } else {
+      raw[mat] = (raw[mat] || 0) + need;
+    }
+  }
+  return raw;
+}
+
+function barHtml(pct) {
+  const cls = pct >= 100 ? 'ok' : pct >= 50 ? 'warn' : 'bad';
+  return `<div class="bar-wrap"><div class="bar ${cls}" style="width:${Math.min(100,pct).toFixed(1)}%"></div></div>`
+       + `<span class="pct ${cls}">${pct.toFixed(0)}%</span>`;
+}
+function missHtml(miss) {
+  return miss > 0 ? `<span class="bad">-${miss.toLocaleString()}</span>`
+                  : `<span class="ok">✓</span>`;
+}
+function matRowHtml(mat, need, have, sub) {
+  const miss = Math.max(0, need - have);
+  const pct  = need > 0 ? Math.min(100, have / need * 100) : 100;
+  const isc  = !!sub;
+  const tag  = isc ? `<span class="tag tag-c">craft</span>` : '';
+  const tog  = isc ? `<span class="mat-toggle" onclick="toggleSub(this)">▼ ingredients</span>` : '';
+  let subHtml = '';
+  if (isc) {
+    for (const [sm, sp] of Object.entries(sub)) {
+      const sn = sp * need, sh = getQ(sm), smiss = Math.max(0, sn - sh);
+      subHtml += `<tr class="sub-row"><td>${sm}</td><td>${sn.toLocaleString()}</td><td>${sh.toLocaleString()}</td><td>${missHtml(smiss)}</td><td>${barHtml(sn>0?Math.min(100,sh/sn*100):100)}</td></tr>`;
+    }
+  }
+  return `<tr><td>${mat}${tag}${tog}</td><td>${need.toLocaleString()}</td><td>${have.toLocaleString()}</td><td>${missHtml(miss)}</td><td>${barHtml(pct)}</td></tr>`
+    + (isc ? `<tr><td colspan="5" style="padding:0"><table style="width:100%"><tbody class="sub-rows">${subHtml}</tbody></table></td></tr>` : '');
+}
+function toggleSub(el) {
+  const sub = el.closest('tr').nextElementSibling?.querySelector('.sub-rows');
+  if (!sub) return;
+  sub.classList.toggle('open');
+  el.textContent = sub.classList.contains('open') ? '▲ ingredients' : '▼ ingredients';
+}
+function toggleWcMat(btn, id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.toggle('open');
+  btn.textContent = el.classList.contains('open') ? '▲ materials' : '▼ materials';
+}
+function renderMatBody(tbody, matMap) {
+  const base = [], craft = [];
+  for (const [m, n] of Object.entries(matMap)) {
+    (CRAFTABLE[m] ? craft : base).push([m, n]);
+  }
+  let html = '';
+  if (base.length) {
+    html += `<tr><td colspan="5" class="sec-label">Base materials</td></tr>`;
+    for (const [m, n] of base) html += matRowHtml(m, n, getQ(m), null);
+  }
+  if (craft.length) {
+    html += `<tr><td colspan="5" class="sec-label">Intermediate (craftable)</td></tr>`;
+    for (const [m, n] of craft) html += matRowHtml(m, n, getQ(m), CRAFTABLE[m]);
+  }
+  tbody.innerHTML = html;
+}
+
+// ── Recalculate ───────────────────────────────────────────────────────────────
+let currentRelevantMats = new Set();
+
+function recalc() {
+  const item    = comboSelected;
+  const wantQty = Math.max(1, parseInt(document.getElementById('qty').value) || 1);
+  const recipe  = ALL_RECIPES[item];
+
+  if (!item || !recipe) {
+    ['summaryCard','chainCard','matCard','grandCard'].forEach(id => document.getElementById(id).classList.add('hidden'));
+    currentRelevantMats = new Set();
+    return;
+  }
+
+  document.getElementById('matQtyLbl').textContent  = wantQty;
+  document.getElementById('matItemLbl').textContent = item;
+  document.getElementById('sLbl').textContent       = item;
+
+  const chain    = CHAINS[item] || [];
+  const hasChain = chain.length > 0;
+
+  // Collect relevant materials for inventory highlight
+  currentRelevantMats = new Set();
+  const collectMats = r => { for (const [m, _] of Object.entries(r)) { currentRelevantMats.add(m); if (CRAFTABLE[m]) collectMats(CRAFTABLE[m]); } };
+  collectMats(recipe);
+  for (const w of chain) if (ALL_RECIPES[w]) collectMats(ALL_RECIPES[w]);
+
+  // ── Chain ────────────────────────────────────────────────────────────────
+  if (hasChain) {
+    const row = document.getElementById('chainRow');
+    row.innerHTML = '';
+    [...chain, item].forEach((wname, idx) => {
+      const isTarget = wname === item;
+      const wrec = ALL_RECIPES[wname]; if (!wrec) return;
+      const need = wantQty, have = getQ(wname);
+      const miss = Math.max(0, need - have);
+      const pct  = Math.min(100, have / need * 100);
+      const cls  = pct >= 100 ? 'ok' : pct >= 50 ? 'warn' : 'bad';
+      const uid  = `wc${idx}`;
+
+      if (idx > 0) row.insertAdjacentHTML('beforeend', `<div class="chain-sep">→</div>`);
+
+      let matRows = '';
+      for (const [m, p] of Object.entries(wrec)) {
+        const mn = p * need, mh = getQ(m), mok = mh >= mn;
+        matRows += `<dt>${m}</dt><dd class="${mok?'ok':'bad'}">${mh.toLocaleString()}/${mn.toLocaleString()}</dd>`;
+      }
+      row.insertAdjacentHTML('beforeend', `
+        <div class="wc ${isTarget ? 'target' : ''}">
+          <div><div class="wc-badge">${isTarget ? 'target' : 'upgrade'}</div>
+          <div class="wc-name">${wname}</div></div>
+          <div class="wc-stats">
+            Need: <span class="v">${need}</span><br>
+            Have: <span class="v">${have}</span><br>
+            Missing: <span class="${miss > 0 ? 'bad' : 'ok'}">${miss > 0 ? '-' + miss : '✓'}</span>
+          </div>
+          <div>${barHtml(pct)}</div>
+          <button class="wc-toggle" onclick="toggleWcMat(this,'${uid}')">▼ materials</button>
+          <div class="wc-mat-list" id="${uid}"><dl>${matRows}</dl></div>
+        </div>`);
+    });
+    document.getElementById('chainCard').classList.remove('hidden');
+  } else {
+    document.getElementById('chainCard').classList.add('hidden');
+  }
+
+  // ── Own materials ─────────────────────────────────────────────────────────
+  const ownMap = {};
+  for (const [m, p] of Object.entries(recipe)) ownMap[m] = p * wantQty;
+  renderMatBody(document.getElementById('matBody'), ownMap);
+  document.getElementById('matCard').classList.remove('hidden');
+
+  // ── Grand total (chain + own, flattened) ──────────────────────────────────
+  let grand = flattenRaw(recipe, wantQty);
+  if (hasChain) {
+    for (const w of chain) {
+      if (!ALL_RECIPES[w]) continue;
+      const sub = flattenRaw(ALL_RECIPES[w], wantQty);
+      for (const [m, q] of Object.entries(sub)) grand[m] = (grand[m] || 0) + q;
+    }
+    const gb = document.getElementById('grandBody');
+    gb.innerHTML = '';
+    for (const [m, n] of Object.entries(grand).sort((a,b) => b[1]-a[1])) {
+      const h = getQ(m);
+      gb.insertAdjacentHTML('beforeend', matRowHtml(m, n, h, null));
+    }
+    document.getElementById('grandCard').classList.remove('hidden');
+  } else {
+    document.getElementById('grandCard').classList.add('hidden');
+  }
+
+  // ── Summary ───────────────────────────────────────────────────────────────
+  const rawAll = hasChain ? grand : flattenRaw(recipe, wantQty);
+  let minSets = Infinity, bottleneck = '', pcts = [];
+  for (const [m, total] of Object.entries(rawAll)) {
+    const h = getQ(m), perSet = total / wantQty;
+    const sets = perSet > 0 ? Math.floor(h / perSet) : Infinity;
+    pcts.push(Math.min(100, h / total * 100));
+    if (sets < minSets) { minSets = sets; bottleneck = m; }
+  }
+  const avg = pcts.length ? pcts.reduce((a,b) => a+b, 0) / pcts.length : 0;
+  document.getElementById('sCanCraft').textContent   = minSets === Infinity ? '—' : minSets.toLocaleString();
+  document.getElementById('sPct').textContent        = avg.toFixed(0) + '%';
+  document.getElementById('sBottleneck').textContent = bottleneck || '—';
+  document.getElementById('summaryCard').classList.remove('hidden');
+
+  // refresh inventory panel if open
+  if (!document.getElementById('invOverlay').classList.contains('hidden')) {
+    renderInvList(document.getElementById('invSearch').value);
+  }
+}
+
+
+// ── Inventory panel ───────────────────────────────────────────────────────────
+function openInv()  { document.getElementById('invOverlay').classList.remove('hidden'); renderInvList(''); }
+function closeInv() { document.getElementById('invOverlay').classList.add('hidden'); }
+
+function renderInvList(search = '') {
+  const q = search.toLowerCase();
+  const list = document.getElementById('invList');
+  list.innerHTML = '';
+
+  // Split: relevant to current recipe vs. rest
+  const relevant = ALL_MATS.filter(m => currentRelevantMats.has(m) && m.toLowerCase().includes(q));
+  const others   = ALL_MATS.filter(m => !currentRelevantMats.has(m) && m.toLowerCase().includes(q));
+
+  function renderRow(mat, isRel) {
+    const qty = getQ(mat);
+    const div = document.createElement('div');
+    div.className = 'inv-row' + (isRel ? ' relevant' : '');
+    div.innerHTML = `<span class="inv-name${isRel ? ' relevant' : ''}">${mat}</span>
+      <input class="inv-qty" type="number" min="0" value="${qty || ''}" placeholder="0"
+        onchange="setQ('${mat.replace(/'/g,"\\'")}', parseInt(this.value)||0)">`;
+    list.appendChild(div);
+  }
+
+  if (relevant.length) {
+    const lbl = document.createElement('div');
+    lbl.className = 'inv-group-label';
+    lbl.textContent = '— current recipe —';
+    list.appendChild(lbl);
+    relevant.forEach(m => renderRow(m, true));
+  }
+
+  if (others.length) {
+    const lbl = document.createElement('div');
+    lbl.className = 'inv-group-label';
+    lbl.textContent = relevant.length ? '— other materials —' : '— all materials —';
+    list.appendChild(lbl);
+    others.forEach(m => renderRow(m, false));
+  }
+
+  if (!relevant.length && !others.length) {
+    list.innerHTML = `<div style="padding:16px;color:var(--faint);font-size:.82rem">No materials found.</div>`;
+  }
+
+  const ts = localStorage.getItem('gz_inv_ts');
+  document.getElementById('invFooter').textContent = ts ? `Last saved: ${ts}` : 'Not saved yet';
+}
+
+// ── Import / Export ───────────────────────────────────────────────────────────
+function doExport() {
+  const json = JSON.stringify(INV, null, 2);
+  const ta = document.createElement('textarea');
+  ta.style.cssText = 'position:fixed;opacity:0';
+  ta.value = json;
+  document.body.appendChild(ta);
+  ta.select(); document.execCommand('copy');
+  document.body.removeChild(ta);
+  alert('Inventory JSON copied to clipboard!');
+}
+function openImport()  {
+  document.getElementById('importTa').value = JSON.stringify(INV, null, 2);
+  document.getElementById('importModal').classList.remove('hidden');
+}
+function closeImport() { document.getElementById('importModal').classList.add('hidden'); }
+function doImport() {
+  try {
+    const parsed = JSON.parse(document.getElementById('importTa').value);
+    if (typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('Expected object');
+    INV = {};
+    for (const [k, v] of Object.entries(parsed)) if (typeof v === 'number' && v > 0) INV[k] = v;
+    saveInv();
+    renderInvList(document.getElementById('invSearch').value);
+    recalc();
+    closeImport();
+  } catch(e) {
+    alert('Invalid JSON: ' + e.message);
+  }
+}
+function clearInv() {
+  if (!confirm('Clear all inventory data?')) return;
+  INV = {}; saveInv();
+  renderInvList(document.getElementById('invSearch').value);
+  recalc();
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+loadInv();
+buildSelector();
+updateInvCount();
+</script>
+</body>
+</html>
