@@ -158,6 +158,86 @@ tr:last-child td { border-bottom: none; }
 }
 .mat-qty-input:focus { outline: none; border-color: var(--purple); }
 
+/* ── Material Tree ─────────────────────────────────────────────────────────── */
+.mat-tree-header {
+  display: flex; align-items: center; gap: 10px;
+  background: #1a1040; border: 2px solid var(--purple);
+  border-radius: 8px; padding: 10px 14px; margin-bottom: 14px;
+}
+.mat-tree-header .titem-name { color: #ddd6fe; font-weight: bold; font-size: .92rem; flex: 1; }
+.mat-tree-header .titem-qty  { color: var(--purple); font-size: .85rem; }
+
+.mat-tree {
+  border-left: 2px solid var(--border2);
+  margin-left: 10px;
+}
+
+.mat-row {
+  position: relative;
+  padding: 3px 0 3px 26px;
+}
+.mat-row::before {
+  content: ''; position: absolute;
+  left: 0; top: 50%;
+  width: 24px; height: 2px;
+  background: var(--border2);
+}
+/* clip vertical line after last child */
+.mat-row:last-child { padding-bottom: 0; }
+.mat-tree > .mat-row:last-child::after {
+  content: ''; position: absolute;
+  left: -2px; top: 50%;
+  bottom: 0; width: 2px;
+  background: var(--bg2); /* covers the parent border */
+}
+
+.mat-node {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  background: var(--bg3); border-radius: 6px;
+  padding: 6px 10px;
+  border-left: 3px solid var(--border2);
+}
+.mat-node.ok   { border-left-color: var(--green); }
+.mat-node.warn { border-left-color: var(--yellow); }
+.mat-node.bad  { border-left-color: var(--red); }
+
+.mat-node .mat-name { flex: 1; font-size: .85rem; min-width: 120px; }
+.mat-node .mat-need { color: var(--muted); font-size: .75rem; white-space: nowrap; }
+.mat-node .mat-sep  { color: var(--border2); }
+
+/* Sub-ingredient tree */
+.mat-sub-tree {
+  border-left: 2px solid var(--border);
+  margin-left: 36px;
+}
+.mat-sub-row {
+  position: relative;
+  padding: 2px 0 2px 22px;
+}
+.mat-sub-row::before {
+  content: ''; position: absolute;
+  left: 0; top: 50%;
+  width: 20px; height: 2px;
+  background: var(--border);
+}
+.mat-sub-tree > .mat-sub-row:last-child::after {
+  content: ''; position: absolute;
+  left: -2px; top: 50%;
+  bottom: 0; width: 2px;
+  background: var(--bg2);
+}
+.mat-sub-node {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  background: var(--bg4); border-radius: 5px;
+  padding: 4px 9px; font-size: .78rem;
+  border-left: 2px solid var(--border);
+}
+.mat-sub-node.ok   { border-left-color: var(--green); }
+.mat-sub-node.warn { border-left-color: var(--yellow); }
+.mat-sub-node.bad  { border-left-color: var(--red); }
+.mat-sub-node .mat-name { flex: 1; min-width: 100px; color: var(--muted); }
+.mat-sub-node .mat-need { color: var(--faint); white-space: nowrap; }
+
 #grandCard { border-color: #3b2d5e; }
 #grandCard .card-title { color: var(--purple); }
 
@@ -286,11 +366,8 @@ tr:last-child td { border-bottom: none; }
 
   <!-- Own materials -->
   <div class="card hidden" id="matCard">
-    <div class="card-title">
-      Materials — <span id="matQtyLbl">1</span> × <span id="matItemLbl"></span>
-    </div>
-    <table><thead><tr><th>Material</th><th>Need</th><th>Have</th><th>Missing</th><th>Progress</th></tr></thead>
-    <tbody id="matBody"></tbody></table>
+    <div class="card-title">Materials</div>
+    <div id="matTree"></div>
   </div>
 
   <!-- Grand total -->
@@ -640,6 +717,74 @@ function renderMatBody(tbody, matMap) {
   tbody.innerHTML = html;
 }
 
+// ── Material Tree ─────────────────────────────────────────────────────────────
+function renderMatTree(item, recipe, wantQty) {
+  const base = [], craft = [];
+  for (const [m, p] of Object.entries(recipe)) {
+    const need = p * wantQty;
+    (CRAFTABLE[m] ? craft : base).push([m, need]);
+  }
+
+  function treeNode(mat, need, isCraft) {
+    const have = getQ(mat);
+    const miss = Math.max(0, need - have);
+    const pct  = need > 0 ? Math.min(100, have / need * 100) : 100;
+    const cls  = pct >= 100 ? 'ok' : pct >= 50 ? 'warn' : 'bad';
+    const k    = mat.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const tag  = isCraft ? ' <span class="tag tag-c">craft</span>' : '';
+
+    let subTree = '';
+    if (isCraft && miss > 0) {
+      let subRows = '';
+      for (const [sm, sp] of Object.entries(CRAFTABLE[mat])) {
+        const sn   = sp * miss;
+        const sh   = getQ(sm);
+        const smiss = Math.max(0, sn - sh);
+        const spct = sn > 0 ? Math.min(100, sh / sn * 100) : 100;
+        const scls = spct >= 100 ? 'ok' : spct >= 50 ? 'warn' : 'bad';
+        const sk   = sm.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        subRows += `<div class="mat-sub-row">
+          <div class="mat-sub-node ${scls}">
+            <span class="mat-name">${sm}</span>
+            <span class="mat-need">×${sn.toLocaleString()}</span>
+            <input class="mat-qty-input" type="number" min="0"
+              value="${sh || ''}" placeholder="0"
+              onchange="setQ('${sk}', parseInt(this.value)||0)"
+              onclick="this.select()">
+            <span class="${scls}">${smiss > 0 ? '-' + smiss.toLocaleString() : '✓'}</span>
+          </div>
+        </div>`;
+      }
+      subTree = `<div class="mat-sub-tree">${subRows}</div>`;
+    }
+
+    return `<div class="mat-row">
+      <div class="mat-node ${cls}">
+        <span class="mat-name">${mat}${tag}</span>
+        <span class="mat-need">×${need.toLocaleString()}</span>
+        <input class="mat-qty-input" type="number" min="0"
+          value="${have || ''}" placeholder="0"
+          onchange="setQ('${k}', parseInt(this.value)||0)"
+          onclick="this.select()">
+        ${barHtml(pct)}
+        <span class="${cls}">${miss > 0 ? '-' + miss.toLocaleString() : '✓'}</span>
+      </div>
+    </div>${subTree}`;
+  }
+
+  let rows = '';
+  for (const [m, n] of base)  rows += treeNode(m, n, false);
+  for (const [m, n] of craft) rows += treeNode(m, n, true);
+
+  return `
+    <div class="mat-tree-header">
+      <span style="color:var(--purple)">★</span>
+      <span class="titem-name">${item}</span>
+      <span class="titem-qty">×${wantQty}</span>
+    </div>
+    <div class="mat-tree">${rows}</div>`;
+}
+
 // ── Recalculate ───────────────────────────────────────────────────────────────
 let currentRelevantMats = new Set();
 
@@ -706,10 +851,8 @@ function recalc() {
     document.getElementById('chainCard').classList.add('hidden');
   }
 
-  // ── Own materials ─────────────────────────────────────────────────────────
-  const ownMap = {};
-  for (const [m, p] of Object.entries(recipe)) ownMap[m] = p * wantQty;
-  renderMatBody(document.getElementById('matBody'), ownMap);
+  // ── Own materials (tree) ──────────────────────────────────────────────────
+  document.getElementById('matTree').innerHTML = renderMatTree(item, recipe, wantQty);
   document.getElementById('matCard').classList.remove('hidden');
 
   // ── Grand total (chain + own, flattened) ──────────────────────────────────
