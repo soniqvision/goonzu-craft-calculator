@@ -3259,6 +3259,7 @@ const craftingData = {
         "NightShade Brew": { "Dino Fossil": 5, "Aquamarine": 10, "A Piece of Moon": 5 },
         "Finishing Wax": {"A Piece of Moon": 5, "Diamond": 5, "Cobaltine": 5 },
         "Softener":{"Amethyst":5, "Glaze":5, "Red Beads": 5 },
+        "Sesame Oil": { "Sesame Seed": 5 },
         "Vinegar": { "Rice": 2, "Bean Paste": 1 },
         "Bean Paste": { "Bean": 3, "Straw": 3 },
         "Soy Bean Milk": { "Bean": 2, "Mung Bean": 1, "Honey": 1 },
