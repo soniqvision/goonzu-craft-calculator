@@ -64,38 +64,6 @@ select, input[type=number] {
 select { min-width: 220px; max-width: 340px; }
 input[type=number] { width: 90px; }
 
-/* ── Item search combobox ───────────────────────────────────────────────────── */
-.combo-wrap { position: relative; min-width: 260px; }
-.combo-input {
-  width: 100%; background: var(--bg3); border: 1px solid var(--border2);
-  color: var(--text); padding: 7px 30px 7px 11px; border-radius: 6px;
-  font-family: inherit; font-size: .95rem; cursor: text;
-}
-.combo-input:focus { outline: none; border-color: var(--purple); }
-.combo-clear {
-  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-  color: var(--faint); cursor: pointer; font-size: 1rem; line-height: 1;
-  display: none;
-}
-.combo-clear.visible { display: block; }
-.combo-dropdown {
-  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
-  background: var(--bg2); border: 1px solid var(--border2); border-radius: 6px;
-  max-height: 280px; overflow-y: auto; z-index: 500;
-  display: none; box-shadow: 0 8px 24px rgba(0,0,0,.5);
-}
-.combo-dropdown.open { display: block; }
-.combo-group {
-  font-size: .62rem; color: var(--faint); text-transform: uppercase;
-  letter-spacing: .07em; padding: 8px 12px 3px;
-  border-top: 1px solid var(--border); margin-top: 2px;
-}
-.combo-group:first-child { border-top: none; margin-top: 0; }
-.combo-opt {
-  padding: 7px 12px; font-size: .88rem; cursor: pointer; color: var(--text);
-}
-.combo-opt:hover, .combo-opt.active { background: var(--bg3); color: var(--purple); }
-.combo-empty { padding: 12px; font-size: .82rem; color: var(--faint); text-align: center; }
 
 /* ── Buttons ───────────────────────────────────────────────────────────────── */
 .btn {
@@ -182,6 +150,13 @@ tr:last-child td { border-bottom: none; }
 .ok   { color: var(--green); }
 .warn { color: var(--yellow); }
 .bad  { color: var(--red); }
+
+.mat-qty-input {
+  background: var(--bg4); border: 1px solid var(--border2); color: var(--text);
+  padding: 2px 6px; border-radius: 5px; font-family: inherit; font-size: .82rem;
+  width: 72px; text-align: right;
+}
+.mat-qty-input:focus { outline: none; border-color: var(--purple); }
 
 #grandCard { border-color: #3b2d5e; }
 #grandCard .card-title { color: var(--purple); }
@@ -275,16 +250,16 @@ tr:last-child td { border-bottom: none; }
   <div class="card">
     <div class="controls">
       <div>
+        <label>Item Type</label>
+        <select id="categorySelect" onchange="onCategoryChange()">
+          <option value="all">All Types</option>
+        </select>
+      </div>
+      <div>
         <label>Item to craft</label>
-        <div class="combo-wrap" id="comboWrap">
-          <input class="combo-input" id="comboInput" type="text"
-            placeholder="Search item…" autocomplete="off"
-            oninput="comboFilter(this.value)"
-            onfocus="comboOpen()"
-            onkeydown="comboKey(event)">
-          <span class="combo-clear" id="comboClear" onclick="comboClearSel()">✕</span>
-          <div class="combo-dropdown" id="comboDrop"></div>
-        </div>
+        <select id="itemSelect" onchange="onItemChange()" style="min-width:260px;max-width:400px">
+          <option value="">— select item —</option>
+        </select>
       </div>
       <div>
         <label>Quantity</label>
@@ -373,15 +348,111 @@ const CATEGORY_LABELS = {
   materials:'Materials (craft)',
 };
 
-// Weapon upgrade chains for guns
+// Upgrade chains: item → list of prerequisites (in order)
 const CHAINS = {
-  "Grenade Launcher (50)":    ["Musketeer's Gun (38)"],
-  "Burst Shotgun (60)":       ["Musketeer's Gun (38)", "Grenade Launcher (50)"],
-  "Sniper's Rifle (70)":      ["Musketeer's Gun (38)", "Grenade Launcher (50)", "Burst Shotgun (60)"],
-  "Hellfire (80)":            ["Musketeer's Gun (38)", "Grenade Launcher (50)", "Burst Shotgun (60)", "Sniper's Rifle (70)"],
-  "Earthquake Launcher (55)": ["Dragon Shotgun (44)"],
-  "Dragon Rifle (65)":        ["Dragon Shotgun (44)", "Earthquake Launcher (55)"],
-  "Taebaek Cannon (75)":      ["Dragon Shotgun (44)", "Earthquake Launcher (55)", "Dragon Rifle (65)"],
+  // ── Axe ────────────────────────────────────────────────────────────────────
+  "Golden Hammer (50)":         ["Morningstar (38)"],
+  "War Hammer (60)":            ["Morningstar (38)", "Golden Hammer (50)"],
+  "Angel's Axe (70)":           ["Morningstar (38)", "Golden Hammer (50)", "War Hammer (60)"],
+  "Iron Soul (80)":             ["Morningstar (38)", "Golden Hammer (50)", "War Hammer (60)", "Angel's Axe (70)"],
+
+  "Great Silver Axe (55)":      ["Battle Axe (44)"],
+  "Great Golden Axe (65)":      ["Battle Axe (44)", "Great Silver Axe (55)"],
+  "Taebaek Axe (75)":           ["Battle Axe (44)", "Great Silver Axe (55)", "Great Golden Axe (65)"],
+  "Spirit Axe (85)":            ["Battle Axe (44)", "Great Silver Axe (55)", "Great Golden Axe (65)", "Taebaek Axe (75)"],
+
+  // ── Sword ──────────────────────────────────────────────────────────────────
+  "Great Tiger Sword(50)":      ["Gladius (38)"],
+  "Katzbalger (60)":            ["Gladius (38)", "Great Tiger Sword(50)"],
+  "Deathblow Sword(70)":        ["Gladius (38)", "Great Tiger Sword(50)", "Katzbalger (60)"],
+  "Zweihander (80)":            ["Gladius (38)", "Great Tiger Sword(50)", "Katzbalger (60)", "Deathblow Sword(70)"],
+
+  "Japanese Sword (55)":        ["Damascus (44)"],
+  "Dragon Knight Sword (65)":   ["Damascus (44)", "Japanese Sword (55)"],
+  "Bastard Sword(75)":          ["Damascus (44)", "Japanese Sword (55)", "Dragon Knight Sword (65)"],
+  "Iron Slasher (85)":          ["Damascus (44)", "Japanese Sword (55)", "Dragon Knight Sword (65)", "Bastard Sword(75)"],
+
+  // ── Spear ──────────────────────────────────────────────────────────────────
+  "Wing Spear (60)":            ["Barchha (38)"],
+  "Grand Screw Spear (70)":     ["Barchha (38)", "Wing Spear (60)"],
+  "Halberd (80)":               ["Barchha (38)", "Wing Spear (60)", "Grand Screw Spear (70)"],
+
+  "Grand Scythe (55)":          ["Iron-Fist (44)"],
+  "Moon Sprit Spear (65)":      ["Iron-Fist (44)", "Grand Scythe (55)"],
+  "Bardiche (75)":              ["Iron-Fist (44)", "Grand Scythe (55)", "Moon Sprit Spear (65)"],
+  "Lightning Spear (85)":       ["Iron-Fist (44)", "Grand Scythe (55)", "Moon Sprit Spear (65)", "Bardiche (75)"],
+
+  // ── Bow ────────────────────────────────────────────────────────────────────
+  "Heavy Crossbow (50)":        ["Light Crossbow (38)"],
+  "Skill Crossbow (60)":        ["Light Crossbow (38)", "Heavy Crossbow (50)"],
+  "Composite Bow (70)":         ["Light Crossbow (38)", "Heavy Crossbow (50)", "Skill Crossbow (60)"],
+  "Arbalest (80)":              ["Light Crossbow (38)", "Heavy Crossbow (50)", "Skill Crossbow (60)", "Composite Bow (70)"],
+
+  "Robin Hood (55)":            ["Hunter's Bow (44)"],
+  "Elfin Bow (65)":             ["Hunter's Bow (44)", "Robin Hood (55)"],
+  "Taebaek Bow (75)":           ["Hunter's Bow (44)", "Robin Hood (55)", "Elfin Bow (65)"],
+  "Thunderbolt Bow (85)":       ["Hunter's Bow (44)", "Robin Hood (55)", "Elfin Bow (65)", "Taebaek Bow (75)"],
+
+  // ── Gun ────────────────────────────────────────────────────────────────────
+  "Grenade Launcher (50)":      ["Musketeer's Gun (38)"],
+  "Burst Shotgun (60)":         ["Musketeer's Gun (38)", "Grenade Launcher (50)"],
+  "Sniper's Rifle (70)":        ["Musketeer's Gun (38)", "Grenade Launcher (50)", "Burst Shotgun (60)"],
+  "Hellfire (80)":              ["Musketeer's Gun (38)", "Grenade Launcher (50)", "Burst Shotgun (60)", "Sniper's Rifle (70)"],
+
+  "Earthquake Launcher (55)":   ["Dragon Shotgun (44)"],
+  "Dragon Rifle (65)":          ["Dragon Shotgun (44)", "Earthquake Launcher (55)"],
+  "Taebaek Cannon (75)":        ["Dragon Shotgun (44)", "Earthquake Launcher (55)", "Dragon Rifle (65)"],
+  "Heavy Wind Gun (85)":        ["Dragon Shotgun (44)", "Earthquake Launcher (55)", "Dragon Rifle (65)", "Taebaek Cannon (75)"],
+
+  // ── Cane ───────────────────────────────────────────────────────────────────
+  "Wing Cane (50)":             ["Snake Cane (38)"],
+  "Star Cane (60)":             ["Snake Cane (38)", "Wing Cane (50)"],
+  "Golden Spear Cane (70)":     ["Snake Cane (38)", "Wing Cane (50)", "Star Cane (60)"],
+  "Orchestra Tact (80)":        ["Snake Cane (38)", "Wing Cane (50)", "Star Cane (60)", "Golden Spear Cane (70)"],
+
+  "Hermit's Cane (55)":         ["Ivory Cane (44)"],
+  "Spirit Cane (65)":           ["Ivory Cane (44)", "Hermit's Cane (55)"],
+  "Taebaek Cane (75)":          ["Ivory Cane (44)", "Hermit's Cane (55)", "Spirit Cane (65)"],
+  "Fairy Cane (85)":            ["Ivory Cane (44)", "Hermit's Cane (55)", "Spirit Cane (65)", "Taebaek Cane (75)"],
+
+  // ── Armor ──────────────────────────────────────────────────────────────────
+  "Taebaek Armor (50)":          ["Iron Armor (35)"],
+  "Black Carabinieer Armor (60)":["Iron Armor (35)", "Taebaek Armor (50)"],
+  "Flame Armor (85)":            ["Iron Armor (35)", "Taebaek Armor (50)", "Black Carabinieer Armor (60)"],
+
+  "Metal Armor (45)":            ["Moonlight Armor (40)"],
+  "White Plate Armor (55)":      ["Moonlight Armor (40)", "Metal Armor (45)"],
+  "Frozen Armor (75)":           ["Moonlight Armor (40)", "Metal Armor (45)", "White Plate Armor (55)"],
+
+  // ── Helmet ─────────────────────────────────────────────────────────────────
+  "Taebaek Helmet (50)":         ["Iron Helmet (35)"],
+  "Black Head Guard (60)":       ["Iron Helmet (35)", "Taebaek Helmet (50)"],
+  "Flame Helmet (85)":           ["Iron Helmet (35)", "Taebaek Helmet (50)", "Black Head Guard (60)"],
+
+  "White Plate Helm (55)":       ["Moonlight Helmet (40)"],
+  "Frozen Helmet (75)":          ["Moonlight Helmet (40)", "White Plate Helm (55)"],
+
+  // ── Belt ───────────────────────────────────────────────────────────────────
+  "Taebaek Belt (50)":           ["Moonshine Belt (40)"],
+  "Black Plate Belt (65)":       ["Moonshine Belt (40)", "Taebaek Belt (50)"],
+  "Flame Belt (85)":             ["Moonshine Belt (40)", "Taebaek Belt (50)", "Black Plate Belt (65)"],
+
+  "Sturdy Metal Belt (45)":      ["Heavy Metal Belt (35)"],
+  "Comet Belt (60)":             ["Heavy Metal Belt (35)", "Sturdy Metal Belt (45)"],
+  "Frozen Belt (75)":            ["Heavy Metal Belt (35)", "Sturdy Metal Belt (45)", "Comet Belt (60)"],
+
+  // ── Shoes ──────────────────────────────────────────────────────────────────
+  "Black Shoes (45)":            ["Rapid Shoes (35)"],
+  "Red Shoes (60)":              ["Rapid Shoes (35)", "Black Shoes (45)"],
+  "Frozen Shoes (75)":           ["Rapid Shoes (35)", "Black Shoes (45)", "Red Shoes (60)"],
+
+  "Green Shoes (45)":            ["Glass Shoes (35)"],
+  "Brown Shoes (60)":            ["Glass Shoes (35)", "Green Shoes (45)"],
+  "Flame Shoes (85)":            ["Glass Shoes (35)", "Green Shoes (45)", "Brown Shoes (60)"],
+
+  // ── Cloak (recipe-embedded chains) ─────────────────────────────────────────
+  "Archangel's Wing": ["Angel Wings"],
+  "Satan's Wing":     ["Devil Wings"],
 };
 
 // Flat map: item name → recipe
@@ -423,122 +494,72 @@ function updateInvCount() {
   document.getElementById('invCount').textContent = n ? `${n} items tracked` : '';
 }
 
-// ── Combobox ──────────────────────────────────────────────────────────────────
-// Flat list: [{cat, label, name}]
-const COMBO_ITEMS = [];
-for (const [cat, items] of Object.entries(craftingData)) {
-  for (const name of Object.keys(items)) {
-    COMBO_ITEMS.push({ cat, label: CATEGORY_LABELS[cat] || cat, name });
+// ── Item selectors ────────────────────────────────────────────────────────────
+
+function buildSelector() {
+  const catSelect = document.getElementById('categorySelect');
+  const sortedCats = Object.keys(craftingData).sort((a, b) =>
+    (CATEGORY_LABELS[a] || a).localeCompare(CATEGORY_LABELS[b] || b)
+  );
+  for (const cat of sortedCats) {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = CATEGORY_LABELS[cat] || cat;
+    catSelect.appendChild(opt);
   }
+  populateItemSelect('all');
 }
 
-let comboSelected = '';   // current item name
-let comboActiveIdx = -1;  // keyboard navigation index
-
-function buildSelector() { /* no-op, replaced by combobox */ }
-
-function comboOpen() {
-  comboFilter(document.getElementById('comboInput').value);
+function itemLevel(name) {
+  const m = name.match(/\((\d+)\)/);
+  return m ? parseInt(m[1]) : 0;
 }
 
-function comboFilter(q) {
-  const drop = document.getElementById('comboDrop');
-  const lower = q.trim().toLowerCase();
-  const filtered = lower
-    ? COMBO_ITEMS.filter(i => i.name.toLowerCase().includes(lower))
-    : COMBO_ITEMS;
+function sortByLevel(names) {
+  return names.sort((a, b) => itemLevel(a) - itemLevel(b) || a.localeCompare(b));
+}
 
-  drop.innerHTML = '';
-  comboActiveIdx = -1;
+function populateItemSelect(cat) {
+  const sel = document.getElementById('itemSelect');
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">— select item —</option>';
 
-  if (!filtered.length) {
-    drop.innerHTML = `<div class="combo-empty">No items found</div>`;
-    drop.classList.add('open');
-    return;
+  if (cat === 'all') {
+    const sortedCats = Object.keys(craftingData).sort((a, b) =>
+      (CATEGORY_LABELS[a] || a).localeCompare(CATEGORY_LABELS[b] || b)
+    );
+    for (const c of sortedCats) {
+      const group = document.createElement('optgroup');
+      group.label = CATEGORY_LABELS[c] || c;
+      for (const name of sortByLevel(Object.keys(craftingData[c]))) {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        group.appendChild(opt);
+      }
+      sel.appendChild(group);
+    }
+  } else {
+    for (const name of sortByLevel(Object.keys(craftingData[cat] || {}))) {
+      const opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = name;
+      sel.appendChild(opt);
+    }
   }
 
-  // Group by category
-  let lastCat = null;
-  filtered.forEach((item, idx) => {
-    if (item.cat !== lastCat) {
-      const g = document.createElement('div');
-      g.className = 'combo-group';
-      g.textContent = item.label;
-      drop.appendChild(g);
-      lastCat = item.cat;
-    }
-    const opt = document.createElement('div');
-    opt.className = 'combo-opt';
-    opt.dataset.idx = idx;
-    opt.dataset.name = item.name;
-    // Highlight matched text
-    if (lower) {
-      const i = item.name.toLowerCase().indexOf(lower);
-      opt.innerHTML = item.name.slice(0, i)
-        + `<strong style="color:var(--purple)">${item.name.slice(i, i + lower.length)}</strong>`
-        + item.name.slice(i + lower.length);
-    } else {
-      opt.textContent = item.name;
-    }
-    opt.addEventListener('mousedown', e => { e.preventDefault(); comboSelect(item.name); });
-    drop.appendChild(opt);
-  });
-
-  drop.classList.add('open');
-  document.getElementById('comboClear').classList.toggle('visible', !!q || !!comboSelected);
+  if (prev && [...sel.options].some(o => o.value === prev)) sel.value = prev;
 }
 
-function comboSelect(name) {
-  comboSelected = name;
-  document.getElementById('comboInput').value = name;
-  document.getElementById('comboDrop').classList.remove('open');
-  document.getElementById('comboClear').classList.add('visible');
+function onCategoryChange() {
+  const cat = document.getElementById('categorySelect').value;
+  populateItemSelect(cat);
   recalc();
 }
 
-function comboClearSel() {
-  comboSelected = '';
-  document.getElementById('comboInput').value = '';
-  document.getElementById('comboClear').classList.remove('visible');
-  document.getElementById('comboDrop').classList.remove('open');
+function onItemChange() {
   recalc();
 }
-
-function comboKey(e) {
-  const drop = document.getElementById('comboDrop');
-  const opts = [...drop.querySelectorAll('.combo-opt')];
-  if (!drop.classList.contains('open')) { comboOpen(); return; }
-
-  if (e.key === 'ArrowDown') {
-    e.preventDefault();
-    comboActiveIdx = Math.min(comboActiveIdx + 1, opts.length - 1);
-  } else if (e.key === 'ArrowUp') {
-    e.preventDefault();
-    comboActiveIdx = Math.max(comboActiveIdx - 1, 0);
-  } else if (e.key === 'Enter') {
-    e.preventDefault();
-    if (comboActiveIdx >= 0 && opts[comboActiveIdx]) {
-      comboSelect(opts[comboActiveIdx].dataset.name);
-    } else if (opts.length === 1) {
-      comboSelect(opts[0].dataset.name);
-    }
-    return;
-  } else if (e.key === 'Escape') {
-    drop.classList.remove('open'); return;
-  } else { return; }
-
-  opts.forEach((o, i) => o.classList.toggle('active', i === comboActiveIdx));
-  if (opts[comboActiveIdx]) opts[comboActiveIdx].scrollIntoView({ block: 'nearest' });
-}
-
-// Close dropdown when clicking outside
-document.addEventListener('click', e => {
-  if (!document.getElementById('comboWrap').contains(e.target)) {
-    document.getElementById('comboDrop').classList.remove('open');
-    // If user typed partial text without selecting, restore last selection
-    if (comboSelected) document.getElementById('comboInput').value = comboSelected;
-  }
-});
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function flattenRaw(recipe, mult = 1) {
@@ -546,8 +567,11 @@ function flattenRaw(recipe, mult = 1) {
   for (const [mat, qty] of Object.entries(recipe)) {
     const need = qty * mult;
     if (CRAFTABLE[mat]) {
-      const sub = flattenRaw(CRAFTABLE[mat], need);
-      for (const [r, q] of Object.entries(sub)) raw[r] = (raw[r] || 0) + q;
+      const tocraft = Math.max(0, need - getQ(mat));
+      if (tocraft > 0) {
+        const sub = flattenRaw(CRAFTABLE[mat], tocraft);
+        for (const [r, q] of Object.entries(sub)) raw[r] = (raw[r] || 0) + q;
+      }
     } else {
       raw[mat] = (raw[mat] || 0) + need;
     }
@@ -564,21 +588,28 @@ function missHtml(miss) {
   return miss > 0 ? `<span class="bad">-${miss.toLocaleString()}</span>`
                   : `<span class="ok">✓</span>`;
 }
+function qtyInput(mat, val) {
+  const k = mat.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+  return `<input class="mat-qty-input" type="number" min="0" value="${val || ''}" placeholder="0"
+    onchange="setQ('${k}', parseInt(this.value)||0)"
+    onclick="this.select()">`;
+}
+
 function matRowHtml(mat, need, have, sub) {
   const miss = Math.max(0, need - have);
   const pct  = need > 0 ? Math.min(100, have / need * 100) : 100;
   const isc  = !!sub;
   const tag  = isc ? `<span class="tag tag-c">craft</span>` : '';
-  const tog  = isc ? `<span class="mat-toggle" onclick="toggleSub(this)">▼ ingredients</span>` : '';
+  const tog  = isc ? `<span class="mat-toggle" onclick="toggleSub(this)">▲ ingredients</span>` : '';
   let subHtml = '';
   if (isc) {
     for (const [sm, sp] of Object.entries(sub)) {
-      const sn = sp * need, sh = getQ(sm), smiss = Math.max(0, sn - sh);
-      subHtml += `<tr class="sub-row"><td>${sm}</td><td>${sn.toLocaleString()}</td><td>${sh.toLocaleString()}</td><td>${missHtml(smiss)}</td><td>${barHtml(sn>0?Math.min(100,sh/sn*100):100)}</td></tr>`;
+      const sn = sp * miss, sh = getQ(sm), smiss = Math.max(0, sn - sh);
+      subHtml += `<tr class="sub-row"><td>${sm}</td><td>${sn.toLocaleString()}</td><td>${qtyInput(sm, sh)}</td><td>${missHtml(smiss)}</td><td>${barHtml(sn>0?Math.min(100,sh/sn*100):100)}</td></tr>`;
     }
   }
-  return `<tr><td>${mat}${tag}${tog}</td><td>${need.toLocaleString()}</td><td>${have.toLocaleString()}</td><td>${missHtml(miss)}</td><td>${barHtml(pct)}</td></tr>`
-    + (isc ? `<tr><td colspan="5" style="padding:0"><table style="width:100%"><tbody class="sub-rows">${subHtml}</tbody></table></td></tr>` : '');
+  return `<tr><td>${mat}${tag}${tog}</td><td>${need.toLocaleString()}</td><td>${qtyInput(mat, have)}</td><td>${missHtml(miss)}</td><td>${barHtml(pct)}</td></tr>`
+    + (isc ? `<tr><td colspan="5" style="padding:0"><table style="width:100%"><tbody class="sub-rows open">${subHtml}</tbody></table></td></tr>` : '');
 }
 function toggleSub(el) {
   const sub = el.closest('tr').nextElementSibling?.querySelector('.sub-rows');
@@ -613,7 +644,7 @@ function renderMatBody(tbody, matMap) {
 let currentRelevantMats = new Set();
 
 function recalc() {
-  const item    = comboSelected;
+  const item    = document.getElementById('itemSelect').value;
   const wantQty = Math.max(1, parseInt(document.getElementById('qty').value) || 1);
   const recipe  = ALL_RECIPES[item];
 
@@ -666,8 +697,8 @@ function recalc() {
             Missing: <span class="${miss > 0 ? 'bad' : 'ok'}">${miss > 0 ? '-' + miss : '✓'}</span>
           </div>
           <div>${barHtml(pct)}</div>
-          <button class="wc-toggle" onclick="toggleWcMat(this,'${uid}')">▼ materials</button>
-          <div class="wc-mat-list" id="${uid}"><dl>${matRows}</dl></div>
+          <button class="wc-toggle" onclick="toggleWcMat(this,'${uid}')">▲ materials</button>
+          <div class="wc-mat-list open" id="${uid}"><dl>${matRows}</dl></div>
         </div>`);
     });
     document.getElementById('chainCard').classList.remove('hidden');
