@@ -42,7 +42,7 @@ body {
 .header h1 { color: var(--purple); font-size: 1.2rem; }
 .header-right { display: flex; gap: 10px; align-items: center; }
 
-main { max-width: 960px; margin: 0 auto; padding: 20px 16px 60px; }
+main { margin: 0 auto; padding: 20px 24px 60px; }
 
 /* ── Cards ─────────────────────────────────────────────────────────────────── */
 .card {
@@ -158,85 +158,59 @@ tr:last-child td { border-bottom: none; }
 }
 .mat-qty-input:focus { outline: none; border-color: var(--purple); }
 
-/* ── Material Tree ─────────────────────────────────────────────────────────── */
-.mat-tree-header {
+/* ── Material Columns ───────────────────────────────────────────────────────── */
+.mc-header {
   display: flex; align-items: center; gap: 10px;
   background: #1a1040; border: 2px solid var(--purple);
   border-radius: 8px; padding: 10px 14px; margin-bottom: 14px;
 }
-.mat-tree-header .titem-name { color: #ddd6fe; font-weight: bold; font-size: .92rem; flex: 1; }
-.mat-tree-header .titem-qty  { color: var(--purple); font-size: .85rem; }
+.mc-header .titem-name { color: #ddd6fe; font-weight: bold; font-size: .92rem; flex: 1; }
+.mc-header .titem-qty  { color: var(--purple); font-size: .85rem; }
 
-.mat-tree {
-  border-left: 2px solid var(--border2);
-  margin-left: 10px;
-}
-
-.mat-row {
-  position: relative;
-  padding: 3px 0 3px 26px;
-}
-.mat-row::before {
-  content: ''; position: absolute;
-  left: 0; top: 50%;
-  width: 24px; height: 2px;
-  background: var(--border2);
-}
-/* clip vertical line after last child */
-.mat-row:last-child { padding-bottom: 0; }
-.mat-tree > .mat-row:last-child::after {
-  content: ''; position: absolute;
-  left: -2px; top: 50%;
-  bottom: 0; width: 2px;
-  background: var(--bg2); /* covers the parent border */
+.mc-columns {
+  display: flex; flex-direction: row; align-items: flex-start;
+  overflow-x: auto; gap: 0; position: relative;
 }
 
-.mat-node {
+/* Column wrappers */
+.mc-col { flex-shrink: 0; }
+.mc-col-main {
+  min-width: 310px; padding-right: 2px;
+  border-right: 2px solid var(--border2);
+}
+.mc-col-sub {
+  min-width: 260px; padding-left: 14px;
+  border-right: 1px solid var(--border);
+}
+.mc-col-sub:last-child { border-right: none; }
+
+/* Group label (shows parent craftable name) */
+.mc-group { margin-bottom: 10px; }
+.mc-group-label {
+  font-size: .6rem; color: var(--purple); letter-spacing: .04em;
+  padding: 2px 0 3px 8px; margin-bottom: 4px;
+  border-left: 2px solid var(--purple2);
+}
+
+/* Individual rows */
+.mc-row { margin-bottom: 4px; }
+
+/* Material nodes */
+.mc-node {
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
   background: var(--bg3); border-radius: 6px;
-  padding: 6px 10px;
-  border-left: 3px solid var(--border2);
+  padding: 6px 10px; border-left: 3px solid var(--border2);
 }
-.mat-node.ok   { border-left-color: var(--green); }
-.mat-node.warn { border-left-color: var(--yellow); }
-.mat-node.bad  { border-left-color: var(--red); }
+.mc-node.ok   { border-left-color: var(--green); }
+.mc-node.warn { border-left-color: var(--yellow); }
+.mc-node.bad  { border-left-color: var(--red); }
+.mc-node .mc-name { flex: 1; font-size: .85rem; min-width: 110px; }
+.mc-node .mc-need { color: var(--muted); font-size: .75rem; white-space: nowrap; }
+.mc-arr { color: var(--border2); font-size: .8rem; }
 
-.mat-node .mat-name { flex: 1; font-size: .85rem; min-width: 120px; }
-.mat-node .mat-need { color: var(--muted); font-size: .75rem; white-space: nowrap; }
-.mat-node .mat-sep  { color: var(--border2); }
-
-/* Sub-ingredient tree */
-.mat-sub-tree {
-  border-left: 2px solid var(--border);
-  margin-left: 36px;
-}
-.mat-sub-row {
-  position: relative;
-  padding: 2px 0 2px 22px;
-}
-.mat-sub-row::before {
-  content: ''; position: absolute;
-  left: 0; top: 50%;
-  width: 20px; height: 2px;
-  background: var(--border);
-}
-.mat-sub-tree > .mat-sub-row:last-child::after {
-  content: ''; position: absolute;
-  left: -2px; top: 50%;
-  bottom: 0; width: 2px;
-  background: var(--bg2);
-}
-.mat-sub-node {
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-  background: var(--bg4); border-radius: 5px;
-  padding: 4px 9px; font-size: .78rem;
-  border-left: 2px solid var(--border);
-}
-.mat-sub-node.ok   { border-left-color: var(--green); }
-.mat-sub-node.warn { border-left-color: var(--yellow); }
-.mat-sub-node.bad  { border-left-color: var(--red); }
-.mat-sub-node .mat-name { flex: 1; min-width: 100px; color: var(--muted); }
-.mat-sub-node .mat-need { color: var(--faint); white-space: nowrap; }
+/* Sub-column nodes slightly smaller/darker */
+.mc-col-sub .mc-node { background: var(--bg4); padding: 5px 9px; }
+.mc-col-sub .mc-node .mc-name { font-size: .8rem; color: var(--muted); }
 
 #grandCard { border-color: #3b2d5e; }
 #grandCard .card-title { color: var(--purple); }
@@ -717,72 +691,202 @@ function renderMatBody(tbody, matMap) {
   tbody.innerHTML = html;
 }
 
-// ── Material Tree ─────────────────────────────────────────────────────────────
-function renderMatTree(item, recipe, wantQty) {
-  const base = [], craft = [];
-  for (const [m, p] of Object.entries(recipe)) {
-    const need = p * wantQty;
-    (CRAFTABLE[m] ? craft : base).push([m, need]);
+// ── Material Columns ──────────────────────────────────────────────────────────
+function renderMatColumns(item, recipe, wantQty) {
+  // Recursively build node tree; craftQty = how many of this ingredient to produce
+  function buildTree(recipeMap, craftQty) {
+    return Object.entries(recipeMap).map(([mat, qty]) => {
+      const need = qty * craftQty;
+      const have = getQ(mat);
+      const miss = Math.max(0, need - have);
+      const isCraft = !!CRAFTABLE[mat];
+      const node = {mat, need, have, miss, isCraft, children: null};
+      if (isCraft && miss > 0) node.children = buildTree(CRAFTABLE[mat], miss);
+      return node;
+    });
   }
+  const tree = buildTree(recipe, wantQty);
 
-  function treeNode(mat, need, isCraft) {
-    const have = getQ(mat);
-    const miss = Math.max(0, need - have);
-    const pct  = need > 0 ? Math.min(100, have / need * 100) : 100;
-    const cls  = pct >= 100 ? 'ok' : pct >= 50 ? 'warn' : 'bad';
-    const k    = mat.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-    const tag  = isCraft ? ' <span class="tag tag-c">craft</span>' : '';
-
-    let subTree = '';
-    if (isCraft && miss > 0) {
-      let subRows = '';
-      for (const [sm, sp] of Object.entries(CRAFTABLE[mat])) {
-        const sn   = sp * miss;
-        const sh   = getQ(sm);
-        const smiss = Math.max(0, sn - sh);
-        const spct = sn > 0 ? Math.min(100, sh / sn * 100) : 100;
-        const scls = spct >= 100 ? 'ok' : spct >= 50 ? 'warn' : 'bad';
-        const sk   = sm.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-        subRows += `<div class="mat-sub-row">
-          <div class="mat-sub-node ${scls}">
-            <span class="mat-name">${sm}</span>
-            <span class="mat-need">×${sn.toLocaleString()}</span>
-            <input class="mat-qty-input" type="number" min="0"
-              value="${sh || ''}" placeholder="0"
-              onchange="setQ('${sk}', parseInt(this.value)||0)"
-              onclick="this.select()">
-            <span class="${scls}">${smiss > 0 ? '-' + smiss.toLocaleString() : '✓'}</span>
-          </div>
-        </div>`;
-      }
-      subTree = `<div class="mat-sub-tree">${subRows}</div>`;
+  // Flatten tree into columns dynamically (any depth)
+  // columns[0] = {type:'main', items:[]}
+  // columns[N] = {type:'sub',  groups:[{parent, items}]}
+  const columns = [{type: 'main', items: tree}];
+  let current = tree;
+  while (true) {
+    const groups = [];
+    for (const it of current) {
+      if (it.isCraft && it.children?.length) groups.push({parent: it.mat, items: it.children});
     }
-
-    return `<div class="mat-row">
-      <div class="mat-node ${cls}">
-        <span class="mat-name">${mat}${tag}</span>
-        <span class="mat-need">×${need.toLocaleString()}</span>
-        <input class="mat-qty-input" type="number" min="0"
-          value="${have || ''}" placeholder="0"
-          onchange="setQ('${k}', parseInt(this.value)||0)"
-          onclick="this.select()">
-        ${barHtml(pct)}
-        <span class="${cls}">${miss > 0 ? '-' + miss.toLocaleString() : '✓'}</span>
-      </div>
-    </div>${subTree}`;
+    if (!groups.length) break;
+    columns.push({type: 'sub', groups});
+    current = groups.flatMap(g => g.items);
   }
 
-  let rows = '';
-  for (const [m, n] of base)  rows += treeNode(m, n, false);
-  for (const [m, n] of craft) rows += treeNode(m, n, true);
+  function esc(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
+
+  function nodeHtml(it) {
+    const pct = it.need > 0 ? Math.min(100, it.have / it.need * 100) : 100;
+    const cls = pct >= 100 ? 'ok' : pct >= 50 ? 'warn' : 'bad';
+    const k   = it.mat.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const tag = it.isCraft ? ' <span class="tag tag-c">craft</span>' : '';
+    const arr = it.isCraft && it.children ? ' <span class="mc-arr">›</span>' : '';
+    const da  = it.isCraft && it.children ? ` data-craft="${esc(it.mat)}"` : '';
+    return `<div class="mc-node ${cls}"${da}>
+      <span class="mc-name">${it.mat}${tag}${arr}</span>
+      <span class="mc-need">×${it.need.toLocaleString()}</span>
+      <input class="mat-qty-input" type="number" min="0"
+        value="${it.have || ''}" placeholder="0"
+        onchange="setQ('${k}', parseInt(this.value)||0)"
+        onclick="this.select()">
+      ${barHtml(pct)}
+      ${it.miss > 0 ? `<span class="bad">-${it.miss.toLocaleString()}</span>` : `<span class="ok">✓</span>`}
+    </div>`;
+  }
+
+  let colsHtml = '';
+  for (let ci = 0; ci < columns.length; ci++) {
+    const col = columns[ci];
+    const colClass = ci === 0 ? 'mc-col-main' : 'mc-col-sub';
+    let inner = '';
+    if (col.type === 'main') {
+      inner = col.items.map(it => `<div class="mc-row">${nodeHtml(it)}</div>`).join('');
+    } else {
+      inner = col.groups.map(g => `
+        <div class="mc-group" data-parent="${esc(g.parent)}">
+          <div class="mc-group-label">${g.parent}</div>
+          ${g.items.map(it => `<div class="mc-row">${nodeHtml(it)}</div>`).join('')}
+        </div>`).join('');
+    }
+    colsHtml += `<div class="mc-col ${colClass}">${inner}</div>`;
+  }
 
   return `
-    <div class="mat-tree-header">
+    <div class="mc-header">
       <span style="color:var(--purple)">★</span>
       <span class="titem-name">${item}</span>
       <span class="titem-qty">×${wantQty}</span>
     </div>
-    <div class="mat-tree">${rows}</div>`;
+    <div class="mc-columns">${colsHtml}</div>`;
+}
+
+// ── Column alignment ──────────────────────────────────────────────────────────
+// Vertically aligns each sub-column group with the craftable node in the
+// previous column that owns it. Uses margin-top so groups stay in normal
+// flow; tracks cumulative displacement so subsequent groups don't shift past
+// their targets.
+function alignColumns() {
+  const cols = document.querySelector('.mc-columns');
+  if (!cols) return;
+  const colEls = Array.from(cols.querySelectorAll('.mc-col'));
+  if (colEls.length <= 1) { requestAnimationFrame(drawConnectors); return; }
+
+  // Reset all margins so measurements start from natural layout
+  colEls.forEach(col => col.querySelectorAll('.mc-group').forEach(g => { g.style.marginTop = ''; }));
+
+  requestAnimationFrame(() => {
+    for (let ci = 1; ci < colEls.length; ci++) {
+      const col     = colEls[ci];
+      const prevCol = colEls[ci - 1];
+      const prevRect = prevCol.getBoundingClientRect();
+      const colRect  = col.getBoundingClientRect();
+
+      const groups = Array.from(col.querySelectorAll('.mc-group'));
+
+      // Measure every group's natural position + its parent node's center
+      // (getBoundingClientRect here triggers a reflow, picking up any margins
+      //  already applied to earlier columns in this same loop pass)
+      const data = groups.map(grp => {
+        const pname = grp.dataset.parent;
+        let pNode = null;
+        prevCol.querySelectorAll('.mc-node[data-craft]').forEach(n => {
+          if (n.dataset.craft === pname) pNode = n;
+        });
+        const gr = grp.getBoundingClientRect();
+        const pr = pNode?.getBoundingClientRect();
+        return {
+          grp,
+          naturalTop : gr.top - colRect.top,
+          height     : gr.height,
+          pCenterY   : pr ? pr.top + pr.height / 2 - prevRect.top : null
+        };
+      });
+
+      // Target position for each group (collision-aware)
+      const targets = [];
+      let minBottom = 0;
+      for (const d of data) {
+        const desired = d.pCenterY !== null ? d.pCenterY - d.height / 2 : minBottom;
+        const actual  = Math.max(minBottom, Math.max(0, desired));
+        targets.push(actual);
+        minBottom = actual + d.height + 6;
+      }
+
+      // Apply margin-top, adjusting for cumulative displacement so far
+      let cumDisp = 0;
+      for (let i = 0; i < data.length; i++) {
+        const margin = targets[i] - data[i].naturalTop - cumDisp;
+        if (margin > 0) {
+          data[i].grp.style.marginTop = margin + 'px';
+          cumDisp += margin;
+        }
+      }
+    }
+
+    requestAnimationFrame(drawConnectors);
+  });
+}
+
+// ── Column connectors (SVG bezier lines) ──────────────────────────────────────
+function drawConnectors() {
+  const cols = document.querySelector('.mc-columns');
+  if (!cols) return;
+  cols.querySelector('svg.mc-connectors')?.remove();
+
+  // Pair each data-craft node with its matching data-parent group label
+  const craftNodes = Array.from(cols.querySelectorAll('.mc-node[data-craft]'));
+  const groupEls   = Array.from(cols.querySelectorAll('.mc-group[data-parent]'));
+  const pairs = [];
+  for (const node of craftNodes) {
+    const name  = node.dataset.craft;
+    const grp   = groupEls.find(g => g.dataset.parent === name);
+    const label = grp?.querySelector('.mc-group-label');
+    if (label) pairs.push({from: node, to: label});
+  }
+  if (!pairs.length) return;
+
+  const w  = cols.scrollWidth, h = cols.scrollHeight;
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.classList.add('mc-connectors');
+  svg.setAttribute('width', w); svg.setAttribute('height', h);
+  svg.style.cssText = 'position:absolute;left:0;top:0;pointer-events:none;overflow:visible';
+
+  const cr = cols.getBoundingClientRect();
+  const sl = cols.scrollLeft, st = cols.scrollTop;
+
+  for (const {from, to} of pairs) {
+    const fr = from.getBoundingClientRect();
+    const tr = to.getBoundingClientRect();
+    const x1 = fr.right  - cr.left + sl + 3;
+    const y1 = fr.top + fr.height / 2 - cr.top + st;
+    const x2 = tr.left   - cr.left + sl - 3;
+    const y2 = tr.top + tr.height / 2 - cr.top + st;
+    const mx = (x1 + x2) / 2;
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', `M${x1} ${y1} C${mx} ${y1},${mx} ${y2},${x2} ${y2}`);
+    path.setAttribute('stroke', '#4a4a9a');
+    path.setAttribute('stroke-width', '1.5');
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke-dasharray', '5 3');
+    svg.appendChild(path);
+
+    const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    arrow.setAttribute('points', `${x2},${y2} ${x2-7},${y2-4} ${x2-7},${y2+4}`);
+    arrow.setAttribute('fill', '#4a4a9a');
+    svg.appendChild(arrow);
+  }
+
+  cols.appendChild(svg);
 }
 
 // ── Recalculate ───────────────────────────────────────────────────────────────
@@ -799,9 +903,7 @@ function recalc() {
     return;
   }
 
-  document.getElementById('matQtyLbl').textContent  = wantQty;
-  document.getElementById('matItemLbl').textContent = item;
-  document.getElementById('sLbl').textContent       = item;
+  document.getElementById('sLbl').textContent = item;
 
   const chain    = CHAINS[item] || [];
   const hasChain = chain.length > 0;
@@ -852,8 +954,9 @@ function recalc() {
   }
 
   // ── Own materials (tree) ──────────────────────────────────────────────────
-  document.getElementById('matTree').innerHTML = renderMatTree(item, recipe, wantQty);
+  document.getElementById('matTree').innerHTML = renderMatColumns(item, recipe, wantQty);
   document.getElementById('matCard').classList.remove('hidden');
+  requestAnimationFrame(alignColumns);
 
   // ── Grand total (chain + own, flattened) ──────────────────────────────────
   let grand = flattenRaw(recipe, wantQty);
@@ -984,6 +1087,7 @@ function clearInv() {
 loadInv();
 buildSelector();
 updateInvCount();
+window.addEventListener('resize', () => requestAnimationFrame(alignColumns));
 </script>
 </body>
 </html>
