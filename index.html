@@ -235,14 +235,15 @@ tr:last-child td { border-bottom: none; }
 /* ── Progress bars — NieR: thin 2px lines ───────────────────────────────────── */
 .bar-wrap {
   background: rgba(208,200,182,0.08);
-  border-radius: 0; height: 2px; width: 88px;
+  border-radius: 0; height: 2px; width: 72px;
   overflow: hidden; display: inline-block; vertical-align: middle;
+  flex-shrink: 0;
 }
 .bar { height: 100%; border-radius: 0; transition: width .3s; }
 .bar.ok   { background: var(--white); }
 .bar.warn { background: var(--gold); }
 .bar.bad  { background: var(--red); }
-.pct { font-size: .68rem; margin-left: 5px; }
+.pct { font-size: .68rem; margin-left: 2px; flex-shrink: 0; width: 34px; text-align: right; }
 .ok   { color: var(--white); }
 .warn { color: var(--gold); }
 .bad  { color: var(--red); }
@@ -253,7 +254,7 @@ tr:last-child td { border-bottom: none; }
   border-bottom: 1px solid var(--border2);
   color: var(--text); padding: 1px 4px; border-radius: 0;
   font-family: inherit; font-size: .78rem;
-  width: 68px; text-align: right;
+  width: 68px; text-align: right; flex-shrink: 0;
   transition: border-color .1s;
 }
 .mat-qty-input:focus { outline: none; border-bottom-color: var(--white); }
@@ -280,11 +281,11 @@ tr:last-child td { border-bottom: none; }
 
 .mc-col { flex-shrink: 0; }
 .mc-col-main {
-  min-width: 310px; padding-right: 2px;
+  min-width: 440px; padding-right: 2px;
   border-right: 1px solid var(--border2);
 }
 .mc-col-sub {
-  min-width: 260px; padding-left: 14px;
+  min-width: 300px; padding-left: 14px;
   border-right: 1px solid var(--border);
 }
 .mc-col-sub:last-child { border-right: none; }
@@ -299,17 +300,18 @@ tr:last-child td { border-bottom: none; }
 .mc-row { margin-bottom: 3px; }
 
 .mc-node {
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  display: flex; align-items: center; gap: 6px; flex-wrap: nowrap;
   background: var(--bg3); border-radius: 0;
-  padding: 5px 10px;
+  padding: 5px 10px; width: 100%;
   border-left: 2px solid var(--border2);
   border-bottom: 1px solid var(--border);
 }
 .mc-node.ok   { border-left-color: var(--white); }
 .mc-node.warn { border-left-color: var(--gold); }
 .mc-node.bad  { border-left-color: var(--red); }
-.mc-node .mc-name { flex: 1; font-size: .8rem; min-width: 110px; }
-.mc-node .mc-need { color: var(--muted); font-size: .7rem; white-space: nowrap; }
+.mc-node .mc-name { flex: 1; font-size: .8rem; min-width: 0; }
+.mc-node .mc-need { color: var(--muted); font-size: .7rem; white-space: nowrap; flex-shrink: 0; width: 52px; text-align: right; }
+.mc-status { flex-shrink: 0; width: 42px; text-align: right; }
 .mc-arr { color: var(--faint); font-size: .72rem; }
 
 .mc-col-sub .mc-node { background: var(--bg4); padding: 4px 9px; }
@@ -820,7 +822,7 @@ function renderMatColumns(item, recipe, wantQty) {
         value="${it.have || ''}" placeholder="0"
         onchange="setQ('${k}', parseInt(this.value)||0)" onclick="this.select()">
       ${barHtml(pct)}
-      ${it.miss > 0 ? `<span class="bad">-${it.miss.toLocaleString()}</span>` : `<span class="ok">✓</span>`}
+      ${it.miss > 0 ? `<span class="bad mc-status">-${it.miss.toLocaleString()}</span>` : `<span class="ok mc-status">✓</span>`}
     </div>`;
   }
   let colsHtml = '';
