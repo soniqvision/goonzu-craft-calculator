@@ -3,285 +3,180 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GoonZu // YoRHa Craft System</title>
+<title>GoonZu Craft Calculator</title>
 <script src="craftingData.js"></script>
 <style>
-/* ── NieR: Automata theme ───────────────────────────────────────────────────── */
+/* ── Reset & base ──────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
-  --bg:      #080807;
-  --bg2:     #0c0c0a;
-  --bg3:     #101010;
-  --bg4:     #141412;
-  --border:  rgba(208,200,182,0.11);
-  --border2: rgba(208,200,182,0.30);
-  --text:    #cdc8b6;
-  --muted:   #6e6960;
-  --faint:   #423e38;
-  /* status colors */
-  --green:   #a8a498;   /* "ok" = dim white */
-  --yellow:  #a48018;   /* warn = amber */
-  --red:     #b01828;   /* bad / primary accent */
-  /* alias to existing var names used in JS-generated HTML */
-  --purple:  #b01828;
-  --purple2: #7a1020;
-  --purple3: rgba(176,24,40,0.15);
-  --blue:    #cdc8b6;
-  --gold:    #a48018;
-  --white:   #c8c3b0;
-  --connector: rgba(176,24,40,0.5);
+  --bg:      #1a1a2e;
+  --bg2:     #16213e;
+  --bg3:     #0f1e3a;
+  --bg4:     #0a0f1e;
+  --border:  #2d2d5e;
+  --border2: #3b3b7a;
+  --text:    #e0e0e0;
+  --muted:   #9ca3af;
+  --faint:   #6b7280;
+  --purple:  #a78bfa;
+  --purple2: #7c3aed;
+  --purple3: #312e81;
+  --blue:    #93c5fd;
+  --green:   #34d399;
+  --yellow:  #fbbf24;
+  --red:     #f87171;
 }
-
-html { font-size: 14px; }
-
+html { font-size: 15px; }
 body {
   background: var(--bg); color: var(--text);
   font-family: 'Courier New', Courier, monospace;
   min-height: 100vh;
-  /* subtle dot-grid background */
-  background-image: radial-gradient(circle, rgba(208,200,182,0.035) 1px, transparent 1px);
-  background-size: 26px 26px;
 }
 
-/* scanlines overlay */
-body::after {
-  content: '';
-  position: fixed; inset: 0;
-  background: repeating-linear-gradient(
-    0deg, transparent, transparent 3px,
-    rgba(0,0,0,0.055) 3px, rgba(0,0,0,0.055) 4px
-  );
-  pointer-events: none; z-index: 9000;
-}
-
-/* ── Header ─────────────────────────────────────────────────────────────────── */
+/* ── Layout ────────────────────────────────────────────────────────────────── */
 .header {
-  background: var(--bg2);
-  border-bottom: 1px solid var(--border2);
-  padding: 10px 28px;
-  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg2); border-bottom: 1px solid var(--border);
+  padding: 14px 24px; display: flex; align-items: center; justify-content: space-between;
   position: sticky; top: 0; z-index: 100;
 }
-.header::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, var(--red), transparent 60%);
-}
-.header h1 {
-  color: var(--text); font-size: .78rem; font-weight: normal;
-  text-transform: uppercase; letter-spacing: .22em;
-}
-.header h1::before { content: '// '; color: var(--red); }
+.header h1 { color: var(--purple); font-size: 1.2rem; }
 .header-right { display: flex; gap: 10px; align-items: center; }
 
-main { padding: 20px 28px 80px; }
+main { margin: 0 auto; padding: 20px 24px 60px; }
 
-/* ── Cards ──────────────────────────────────────────────────────────────────── */
+/* ── Cards ─────────────────────────────────────────────────────────────────── */
 .card {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-left: 2px solid var(--purple2);
-  padding: 16px 20px;
-  margin-bottom: 10px;
-  position: relative;
-  clip-path: polygon(
-    0 0, calc(100% - 14px) 0,
-    100% 14px, 100% 100%,
-    14px 100%, 0 calc(100% - 14px)
-  );
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 18px; margin-bottom: 14px;
 }
-.card::after {
-  content: '';
-  position: absolute;
-  top: -1px; right: -1px;
-  width: 15px; height: 15px;
-  background: linear-gradient(135deg, transparent 50%, var(--red) 50%);
-  opacity: .25;
-}
-
 .card-title {
-  font-size: .54rem; color: var(--red);
-  text-transform: uppercase; letter-spacing: .18em;
-  margin-bottom: 14px; padding-bottom: 7px;
-  border-bottom: 1px solid var(--border);
-}
-.card-title::before { content: '▸ '; opacity: .7; }
-
-/* ── Controls ───────────────────────────────────────────────────────────────── */
-.controls { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-end; }
-
-label {
-  display: block; font-size: .54rem; color: var(--muted);
-  margin-bottom: 7px; text-transform: uppercase; letter-spacing: .14em;
+  font-size: .7rem; color: var(--muted); text-transform: uppercase;
+  letter-spacing: .07em; margin-bottom: 12px;
 }
 
+/* ── Controls ──────────────────────────────────────────────────────────────── */
+.controls { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end; }
+label { display: block; font-size: .75rem; color: var(--muted); margin-bottom: 5px; }
 select, input[type=number] {
-  background: transparent; border: none;
-  border-bottom: 1px solid var(--border2);
-  color: var(--text); padding: 5px 4px;
-  font-family: inherit; font-size: .88rem; border-radius: 0;
+  background: var(--bg3); border: 1px solid var(--border2); color: var(--text);
+  padding: 7px 11px; border-radius: 6px; font-family: inherit; font-size: .95rem;
 }
-select:focus, input[type=number]:focus { outline: none; border-bottom-color: var(--white); }
 select { min-width: 220px; max-width: 340px; }
-input[type=number] { width: 80px; }
-option, optgroup { background: #0d0d0b; }
+input[type=number] { width: 90px; }
 
-/* ── Buttons ────────────────────────────────────────────────────────────────── */
+
+/* ── Buttons ───────────────────────────────────────────────────────────────── */
 .btn {
-  background: var(--purple2); color: var(--text);
-  border: 1px solid var(--red);
-  padding: 6px 16px; border-radius: 0; cursor: pointer;
-  font-family: inherit; font-size: .68rem;
-  text-transform: uppercase; letter-spacing: .12em;
-  transition: background .12s, color .12s;
+  background: var(--purple2); color: #fff; border: none;
+  padding: 8px 16px; border-radius: 6px; cursor: pointer;
+  font-family: inherit; font-size: .88rem; transition: background .15s;
 }
-.btn:hover { background: var(--red); color: var(--white); }
+.btn:hover { background: #6d28d9; }
 .btn-outline {
-  background: transparent; border: 1px solid var(--border2); color: var(--muted);
+  background: transparent; border: 1px solid var(--border2); color: var(--blue);
 }
-.btn-outline:hover { background: rgba(208,200,182,0.06); border-color: var(--text); color: var(--text); }
-.btn-sm { padding: 4px 11px; font-size: .62rem; }
+.btn-outline:hover { background: var(--bg3); }
+.btn-sm { padding: 5px 11px; font-size: .78rem; }
 
-/* ── Summary ────────────────────────────────────────────────────────────────── */
-.summary { display: flex; gap: 44px; flex-wrap: wrap; align-items: flex-start; }
-.s-item .val {
-  font-size: 2.4rem; color: var(--white);
-  font-weight: normal; letter-spacing: .04em; line-height: 1;
-}
-.s-item .lbl {
-  font-size: .5rem; color: var(--faint);
-  text-transform: uppercase; letter-spacing: .18em; margin-top: 5px;
-}
+/* ── Summary ───────────────────────────────────────────────────────────────── */
+.summary { display: flex; gap: 28px; flex-wrap: wrap; }
+.s-item .val { font-size: 1.6rem; color: var(--purple); font-weight: bold; }
+.s-item .lbl { font-size: .72rem; color: var(--faint); margin-top: 2px; }
 
-/* ── Chain cards ────────────────────────────────────────────────────────────── */
+/* ── Chain cards ───────────────────────────────────────────────────────────── */
 .chain-row {
   display: flex; align-items: flex-start; gap: 0;
-  overflow-x: auto; padding-bottom: 4px;
-  counter-reset: chain;
+  overflow-x: auto; padding-bottom: 6px;
 }
-.chain-sep {
-  color: var(--faint); font-size: .75rem; align-self: center;
-  padding: 0 8px; flex-shrink: 0; letter-spacing: .1em;
-}
+.chain-sep { color: var(--faint); font-size: 1.1rem; align-self: center; padding: 0 6px; flex-shrink: 0; }
 .wc {
-  background: var(--bg3); border: 1px solid var(--border); border-radius: 0;
-  padding: 10px 12px; min-width: 150px; max-width: 190px;
-  flex-shrink: 0; display: flex; flex-direction: column; gap: 6px;
-  position: relative;
-  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
-  counter-increment: chain;
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px; min-width: 150px; max-width: 190px; flex-shrink: 0;
+  display: flex; flex-direction: column; gap: 7px;
 }
-.wc::before {
-  content: counter(chain, decimal-leading-zero);
-  position: absolute; top: 5px; right: 8px;
-  font-size: .5rem; color: var(--faint); letter-spacing: .06em;
-}
-.wc.target {
-  border-color: rgba(176,24,40,0.6);
-  background: rgba(176,24,40,0.08);
-}
+.wc.target { border-color: var(--purple); background: #1a1040; }
 .wc-badge {
-  font-size: .5rem; letter-spacing: .14em; text-transform: uppercase;
-  color: var(--faint); background: transparent; border: none; padding: 0;
+  font-size: .58rem; padding: 2px 5px; border-radius: 3px; display: inline-block;
+  background: #1c3a1c; color: #6ee7b7;
 }
-.wc.target .wc-badge { color: var(--red); }
-.wc-name { font-size: .78rem; color: var(--white); font-weight: normal; line-height: 1.35; }
-.wc.target .wc-name { color: var(--white); }
-.wc-stats { font-size: .7rem; color: var(--muted); line-height: 1.85; }
+.wc.target .wc-badge { background: var(--purple3); color: #c4b5fd; }
+.wc-name { font-size: .8rem; color: var(--blue); font-weight: bold; line-height: 1.3; }
+.wc.target .wc-name { color: #ddd6fe; }
+.wc-stats { font-size: .75rem; color: var(--muted); line-height: 1.7; }
 .wc-stats .v { color: var(--text); }
 .wc-toggle {
-  font-size: .6rem; color: var(--faint); cursor: pointer;
-  background: none; border: none; border-bottom: 1px solid transparent;
-  font-family: inherit; padding: 0; text-align: left; letter-spacing: .06em;
-  transition: color .1s;
+  font-size: .7rem; color: #818cf8; cursor: pointer; background: none;
+  border: none; font-family: inherit; padding: 0; text-align: left;
 }
-.wc-toggle:hover { color: var(--text); border-bottom-color: var(--border2); }
-.wc-mat-list { display: none; font-size: .66rem; margin-top: 2px; }
+.wc-toggle:hover { text-decoration: underline; }
+.wc-mat-list { display: none; font-size: .7rem; margin-top: 2px; }
 .wc-mat-list.open { display: block; }
-.wc-mat-list dl { display: grid; grid-template-columns: 1fr auto; gap: 2px 6px; }
+.wc-mat-list dl { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; }
 .wc-mat-list dt { color: var(--muted); }
 .wc-mat-list dd { text-align: right; white-space: nowrap; }
 
-/* ── Material tables (Grand Total) ──────────────────────────────────────────── */
+/* ── Material tables ───────────────────────────────────────────────────────── */
 table { width: 100%; border-collapse: collapse; }
 th {
-  font-size: .52rem; color: var(--faint); text-align: left;
-  padding: 4px 8px; border-bottom: 1px solid var(--border);
-  text-transform: uppercase; letter-spacing: .14em;
+  font-size: .7rem; color: var(--muted); text-align: left;
+  padding: 5px 8px; border-bottom: 1px solid var(--border);
 }
-td { padding: 6px 8px; border-bottom: 1px solid var(--border); font-size: .82rem; }
+td { padding: 7px 8px; border-bottom: 1px solid #1a1a3a; font-size: .88rem; }
 tr:last-child td { border-bottom: none; }
 .sec-label {
-  font-size: .52rem; color: var(--faint); text-transform: uppercase;
-  letter-spacing: .14em; padding: 9px 8px 4px; border-top: 1px solid var(--border);
+  font-size: .65rem; color: var(--faint); text-transform: uppercase;
+  letter-spacing: .07em; padding: 10px 8px 4px; border-top: 1px solid var(--border);
 }
 .sec-label:first-child { border-top: none; padding-top: 0; }
 
 /* tags */
-.tag {
-  display: inline-block; font-size: .5rem; padding: 0 5px;
-  border-radius: 0; margin-left: 5px; vertical-align: middle; letter-spacing: .08em;
-}
-.tag-c { background: var(--purple3); color: var(--red); border: 1px solid var(--purple2); }
+.tag { display: inline-block; font-size: .58rem; padding: 1px 5px; border-radius: 3px; margin-left: 5px; vertical-align: middle; }
+.tag-c { background: var(--purple3); color: #a5b4fc; }
 
 /* sub-rows toggle */
-.mat-toggle { cursor: pointer; color: var(--muted); font-size: .64rem; margin-left: 6px; transition: color .1s; }
-.mat-toggle:hover { color: var(--text); }
+.mat-toggle { cursor: pointer; color: #818cf8; font-size: .72rem; margin-left: 6px; }
+.mat-toggle:hover { text-decoration: underline; }
 .sub-rows { display: none; }
 .sub-rows.open { display: table-row-group; }
-.sub-row td { background: var(--bg4); color: var(--muted); font-size: .74rem; padding: 4px 8px 4px 24px; border-bottom: 1px solid var(--border); }
+.sub-row td { background: var(--bg4); color: var(--muted); font-size: .8rem; padding: 5px 8px 5px 26px; border-bottom: 1px solid #11112a; }
 
-/* ── Progress bars — NieR: thin 2px lines ───────────────────────────────────── */
-.bar-wrap {
-  background: rgba(208,200,182,0.08);
-  border-radius: 0; height: 2px; width: 88px;
-  overflow: hidden; display: inline-block; vertical-align: middle;
-}
-.bar { height: 100%; border-radius: 0; transition: width .3s; }
-.bar.ok   { background: var(--white); }
-.bar.warn { background: var(--gold); }
+/* progress */
+.bar-wrap { background: #0a0a1a; border-radius: 4px; height: 6px; width: 100px; overflow: hidden; display: inline-block; vertical-align: middle; }
+.bar { height: 100%; border-radius: 4px; }
+.bar.ok   { background: var(--green); }
+.bar.warn { background: var(--yellow); }
 .bar.bad  { background: var(--red); }
-.pct { font-size: .68rem; margin-left: 5px; }
-.ok   { color: var(--white); }
-.warn { color: var(--gold); }
+.pct { font-size: .75rem; margin-left: 5px; }
+.ok   { color: var(--green); }
+.warn { color: var(--yellow); }
 .bad  { color: var(--red); }
 
-/* qty inputs — underline-only style */
 .mat-qty-input {
-  background: transparent; border: none;
-  border-bottom: 1px solid var(--border2);
-  color: var(--text); padding: 1px 4px; border-radius: 0;
-  font-family: inherit; font-size: .78rem;
-  width: 68px; text-align: right;
-  transition: border-color .1s;
+  background: var(--bg4); border: 1px solid var(--border2); color: var(--text);
+  padding: 2px 6px; border-radius: 5px; font-family: inherit; font-size: .82rem;
+  width: 72px; text-align: right;
 }
-.mat-qty-input:focus { outline: none; border-bottom-color: var(--white); }
+.mat-qty-input:focus { outline: none; border-color: var(--purple); }
 
 /* ── Material Columns ───────────────────────────────────────────────────────── */
 .mc-header {
   display: flex; align-items: center; gap: 10px;
-  background: transparent;
-  border: 1px solid rgba(176,24,40,0.35);
-  border-left: 3px solid var(--red);
-  border-radius: 0; padding: 8px 14px; margin-bottom: 14px;
+  background: #1a1040; border: 2px solid var(--purple);
+  border-radius: 8px; padding: 10px 14px; margin-bottom: 14px;
 }
-.mc-header .titem-name {
-  color: var(--white); font-weight: normal;
-  font-size: .88rem; flex: 1; letter-spacing: .07em;
-}
-.mc-header .titem-qty  { color: var(--red); font-size: .8rem; }
-.mc-header span:first-child { color: var(--red) !important; }
+.mc-header .titem-name { color: #ddd6fe; font-weight: bold; font-size: .92rem; flex: 1; }
+.mc-header .titem-qty  { color: var(--purple); font-size: .85rem; }
 
 .mc-columns {
   display: flex; flex-direction: row; align-items: flex-start;
   overflow-x: auto; gap: 0; position: relative;
 }
 
+/* Column wrappers */
 .mc-col { flex-shrink: 0; }
 .mc-col-main {
   min-width: 310px; padding-right: 2px;
-  border-right: 1px solid var(--border2);
+  border-right: 2px solid var(--border2);
 }
 .mc-col-sub {
   min-width: 260px; padding-left: 14px;
@@ -289,183 +184,106 @@ tr:last-child td { border-bottom: none; }
 }
 .mc-col-sub:last-child { border-right: none; }
 
+/* Group label (shows parent craftable name) */
 .mc-group { margin-bottom: 10px; }
 .mc-group-label {
-  font-size: .5rem; color: var(--red); letter-spacing: .12em;
-  text-transform: uppercase; padding: 2px 0 4px 8px; margin-bottom: 4px;
+  font-size: .6rem; color: var(--purple); letter-spacing: .04em;
+  padding: 2px 0 3px 8px; margin-bottom: 4px;
   border-left: 2px solid var(--purple2);
 }
 
-.mc-row { margin-bottom: 3px; }
+/* Individual rows */
+.mc-row { margin-bottom: 4px; }
 
+/* Material nodes */
 .mc-node {
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-  background: var(--bg3); border-radius: 0;
-  padding: 5px 10px;
-  border-left: 2px solid var(--border2);
-  border-bottom: 1px solid var(--border);
+  background: var(--bg3); border-radius: 6px;
+  padding: 6px 10px; border-left: 3px solid var(--border2);
 }
-.mc-node.ok   { border-left-color: var(--white); }
-.mc-node.warn { border-left-color: var(--gold); }
+.mc-node.ok   { border-left-color: var(--green); }
+.mc-node.warn { border-left-color: var(--yellow); }
 .mc-node.bad  { border-left-color: var(--red); }
-.mc-node .mc-name { flex: 1; font-size: .8rem; min-width: 110px; }
-.mc-node .mc-need { color: var(--muted); font-size: .7rem; white-space: nowrap; }
-.mc-arr { color: var(--faint); font-size: .72rem; }
+.mc-node .mc-name { flex: 1; font-size: .85rem; min-width: 110px; }
+.mc-node .mc-need { color: var(--muted); font-size: .75rem; white-space: nowrap; }
+.mc-arr { color: var(--border2); font-size: .8rem; }
 
-.mc-col-sub .mc-node { background: var(--bg4); padding: 4px 9px; }
-.mc-col-sub .mc-node .mc-name { font-size: .76rem; color: var(--muted); }
+/* Sub-column nodes slightly smaller/darker */
+.mc-col-sub .mc-node { background: var(--bg4); padding: 5px 9px; }
+.mc-col-sub .mc-node .mc-name { font-size: .8rem; color: var(--muted); }
 
-#grandCard { border-left-color: var(--purple2); }
-#grandCard .card-title { color: var(--red); }
+#grandCard { border-color: #3b2d5e; }
+#grandCard .card-title { color: var(--purple); }
 
 .hidden { display: none !important; }
 
-/* ── Inventory Panel ─────────────────────────────────────────────────────────── */
+/* ── Inventory Panel ───────────────────────────────────────────────────────── */
 .inv-overlay {
   position: fixed; inset: 0; z-index: 200;
   display: flex; justify-content: flex-end;
 }
 .inv-overlay.hidden { display: none !important; }
-.inv-backdrop { flex: 1; background: rgba(0,0,0,.7); }
+.inv-backdrop { flex: 1; background: rgba(0,0,0,.5); }
 .inv-panel {
-  width: 320px; max-width: 95vw; background: var(--bg2);
-  border-left: 1px solid var(--border2); display: flex; flex-direction: column;
+  width: 340px; max-width: 95vw; background: var(--bg2);
+  border-left: 1px solid var(--border); display: flex; flex-direction: column;
   height: 100vh; overflow: hidden;
 }
 .inv-header {
-  padding: 11px 16px; border-bottom: 1px solid var(--border);
+  padding: 14px 16px; border-bottom: 1px solid var(--border);
   display: flex; justify-content: space-between; align-items: center;
   flex-shrink: 0;
 }
-.inv-header h2 {
-  font-size: .68rem; color: var(--red);
-  text-transform: uppercase; letter-spacing: .16em; font-weight: normal;
-}
+.inv-header h2 { font-size: .95rem; color: var(--purple); }
 .inv-toolbar {
   padding: 10px 16px; border-bottom: 1px solid var(--border);
   display: flex; flex-direction: column; gap: 8px; flex-shrink: 0;
 }
 .inv-search {
-  background: transparent; border: none;
-  border-bottom: 1px solid var(--border2); color: var(--text);
-  padding: 5px 4px; border-radius: 0; font-family: inherit; font-size: .8rem; width: 100%;
+  background: var(--bg3); border: 1px solid var(--border2); color: var(--text);
+  padding: 7px 10px; border-radius: 6px; font-family: inherit; font-size: .85rem; width: 100%;
 }
-.inv-search:focus { outline: none; border-bottom-color: var(--white); }
-.inv-toolbar-btns { display: flex; gap: 6px; flex-wrap: wrap; }
-.inv-list { flex: 1; overflow-y: auto; padding: 4px 0; }
+.inv-toolbar-btns { display: flex; gap: 8px; }
+.inv-list { flex: 1; overflow-y: auto; padding: 8px 0; }
 .inv-group-label {
-  font-size: .5rem; color: var(--faint); text-transform: uppercase;
-  letter-spacing: .14em; padding: 8px 16px 3px;
+  font-size: .62rem; color: var(--faint); text-transform: uppercase;
+  letter-spacing: .07em; padding: 8px 16px 3px;
 }
 .inv-row {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 4px 16px; gap: 10px; transition: background .1s;
+  padding: 5px 16px; gap: 10px;
 }
-.inv-row.relevant { background: rgba(176,24,40,0.07); }
-.inv-row:hover { background: rgba(208,200,182,0.04); }
-.inv-name { font-size: .76rem; flex: 1; color: var(--muted); }
-.inv-name.relevant { color: var(--text); }
+.inv-row.relevant { background: #0f1e3a; }
+.inv-row:hover { background: #111a30; }
+.inv-name { font-size: .82rem; flex: 1; color: var(--text); }
+.inv-name.relevant { color: var(--blue); }
 .inv-qty {
-  background: transparent; border: none; border-bottom: 1px solid var(--border2);
-  color: var(--text); padding: 2px 4px; border-radius: 0;
-  font-family: inherit; font-size: .76rem; width: 64px; text-align: right;
+  background: var(--bg4); border: 1px solid var(--border2); color: var(--text);
+  padding: 3px 7px; border-radius: 5px; font-family: inherit; font-size: .82rem;
+  width: 70px; text-align: right;
 }
 .inv-footer {
-  padding: 8px 16px; border-top: 1px solid var(--border);
-  font-size: .58rem; color: var(--faint); flex-shrink: 0; letter-spacing: .06em;
+  padding: 10px 16px; border-top: 1px solid var(--border);
+  font-size: .7rem; color: var(--faint); flex-shrink: 0;
 }
 
-/* ── Import/Export modal ─────────────────────────────────────────────────────── */
+/* ── Import/Export modal ───────────────────────────────────────────────────── */
 .modal-bg {
-  position: fixed; inset: 0; background: rgba(0,0,0,.82);
+  position: fixed; inset: 0; background: rgba(0,0,0,.7);
   z-index: 300; display: flex; align-items: center; justify-content: center;
 }
 .modal-bg.hidden { display: none !important; }
 .modal {
-  background: var(--bg2); border: 1px solid var(--border2);
-  border-left: 3px solid var(--red); border-radius: 0;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
   padding: 20px; width: 440px; max-width: 95vw;
-  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
 }
-.modal h3 {
-  color: var(--red); font-size: .68rem;
-  text-transform: uppercase; letter-spacing: .16em;
-  margin-bottom: 12px; font-weight: normal;
-}
-.modal h3::before { content: '▸ '; }
+.modal h3 { color: var(--purple); font-size: 1rem; margin-bottom: 12px; }
 .modal textarea {
-  width: 100%; height: 180px; background: var(--bg4);
-  border: 1px solid var(--border); border-bottom: 2px solid var(--border2);
-  color: var(--text); padding: 10px; border-radius: 0;
-  font-family: monospace; font-size: .76rem; resize: vertical;
+  width: 100%; height: 180px; background: var(--bg4); border: 1px solid var(--border2);
+  color: var(--text); padding: 10px; border-radius: 6px; font-family: monospace; font-size: .8rem;
+  resize: vertical;
 }
 .modal-btns { display: flex; gap: 10px; margin-top: 12px; justify-content: flex-end; }
-
-/* ── Scrollbar styling ───────────────────────────────────────────────────────── */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border2); }
-::-webkit-scrollbar-thumb:hover { background: var(--muted); }
-
-/* ── THEME: YoRHa (cream / light) ──────────────────────────────────────────── */
-[data-theme="yorha"] {
-  --bg:      #d1cdb7;
-  --bg2:     #c8c4ae;
-  --bg3:     #dcd8c0;
-  --bg4:     #e8e4cc;
-  --border:  rgba(69,65,56,0.13);
-  --border2: rgba(69,65,56,0.38);
-  --text:    #454138;
-  --muted:   #7a7568;
-  --faint:   #aca79a;
-  --green:   #3d5e3b;
-  --yellow:  #8a5010;
-  --red:     #8a1018;
-  --purple:  #8a1018;
-  --purple2: #6a0c14;
-  --purple3: rgba(138,16,24,0.08);
-  --blue:    #454138;
-  --gold:    #8a5010;
-  --white:   #1e1c18;
-  --connector: rgba(138,16,24,0.4);
-}
-
-[data-theme="yorha"] body {
-  font-family: helvetica, 'Helvetica Neue', sans-serif;
-  font-weight: 300;
-  letter-spacing: 0.03em;
-  background-image:
-    linear-gradient(to right, rgba(180,175,155,0.55) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(180,175,155,0.55) 1px, transparent 1px);
-  background-size: 14px 14px;
-}
-
-[data-theme="yorha"] body::after { display: none; }
-
-[data-theme="yorha"] option,
-[data-theme="yorha"] optgroup { background: #dcd8c0; }
-
-[data-theme="yorha"] .bar-wrap { background: rgba(69,65,56,0.10); }
-[data-theme="yorha"] .inv-row.relevant { background: rgba(138,16,24,0.05); }
-[data-theme="yorha"] .inv-row:hover    { background: rgba(69,65,56,0.05); }
-[data-theme="yorha"] .wc.target { background: rgba(138,16,24,0.06); border-color: rgba(138,16,24,0.45); }
-[data-theme="yorha"] .btn-outline:hover { background: rgba(69,65,56,0.07); }
-[data-theme="yorha"] .inv-backdrop { background: rgba(69,65,56,0.40); }
-[data-theme="yorha"] .modal-bg    { background: rgba(69,65,56,0.60); }
-[data-theme="yorha"] .mc-header   { border-color: rgba(138,16,24,0.25); }
-[data-theme="yorha"] .modal textarea { background: var(--bg3); border-color: var(--border); }
-
-/* ── Theme switcher ─────────────────────────────────────────────────────────── */
-.theme-switcher { display: flex; gap: 3px; align-items: center; }
-.theme-btn {
-  background: transparent; border: 1px solid var(--border2);
-  color: var(--muted); padding: 3px 10px; cursor: pointer;
-  font-family: inherit; font-size: .56rem;
-  text-transform: uppercase; letter-spacing: .14em;
-  border-radius: 0; transition: all .12s;
-}
-.theme-btn.active { background: var(--purple2); color: var(--text); border-color: var(--red); }
-.theme-btn:hover:not(.active) { color: var(--text); border-color: var(--text); }
 </style>
 </head>
 <body>
@@ -474,12 +292,8 @@ tr:last-child td { border-bottom: none; }
 <header class="header">
   <h1>GoonZu Craft Calculator</h1>
   <div class="header-right">
-    <div class="theme-switcher">
-      <button class="theme-btn" data-theme-btn="nier"  onclick="setTheme('nier')">NieR</button>
-      <button class="theme-btn" data-theme-btn="yorha" onclick="setTheme('yorha')">YoRHa</button>
-    </div>
-    <span id="invCount" style="font-size:.62rem;color:var(--faint);letter-spacing:.08em"></span>
-    <button class="btn btn-outline" onclick="openInv()">Inventory</button>
+    <span id="invCount" style="font-size:.75rem;color:var(--faint)"></span>
+    <button class="btn btn-outline" onclick="openInv()">My Inventory</button>
   </div>
 </header>
 
@@ -490,13 +304,13 @@ tr:last-child td { border-bottom: none; }
   <div class="card">
     <div class="controls">
       <div>
-        <label>Unit Type</label>
+        <label>Item Type</label>
         <select id="categorySelect" onchange="onCategoryChange()">
           <option value="all">All Types</option>
         </select>
       </div>
       <div>
-        <label>Target Unit</label>
+        <label>Item to craft</label>
         <select id="itemSelect" onchange="onItemChange()" style="min-width:260px;max-width:400px">
           <option value="">— select item —</option>
         </select>
@@ -510,7 +324,7 @@ tr:last-child td { border-bottom: none; }
 
   <!-- Summary -->
   <div class="card hidden" id="summaryCard">
-    <div class="card-title">Status Report</div>
+    <div class="card-title">Summary</div>
     <div class="summary">
       <div class="s-item"><div class="val" id="sCanCraft">—</div><div class="lbl" id="sLbl">can craft</div></div>
       <div class="s-item"><div class="val" id="sPct">—</div><div class="lbl">Overall progress</div></div>
@@ -520,11 +334,11 @@ tr:last-child td { border-bottom: none; }
 
   <!-- Chain -->
   <div class="card hidden" id="chainCard">
-    <div class="card-title">Upgrade Chain</div>
+    <div class="card-title">Weapon upgrade chain</div>
     <div class="chain-row" id="chainRow"></div>
   </div>
 
-  <!-- Materials -->
+  <!-- Own materials -->
   <div class="card hidden" id="matCard">
     <div class="card-title">Materials</div>
     <div id="matTree"></div>
@@ -532,8 +346,8 @@ tr:last-child td { border-bottom: none; }
 
   <!-- Grand total -->
   <div class="card hidden" id="grandCard">
-    <div class="card-title">Grand Total — Full Chain Raw Materials</div>
-    <table><thead><tr><th>Material</th><th>Total Need</th><th>Have</th><th>Missing</th><th>Progress</th></tr></thead>
+    <div class="card-title">Grand total — all raw materials (full chain)</div>
+    <table><thead><tr><th>Material</th><th>Total need</th><th>Have</th><th>Missing</th><th>Progress</th></tr></thead>
     <tbody id="grandBody"></tbody></table>
   </div>
 
@@ -544,15 +358,15 @@ tr:last-child td { border-bottom: none; }
   <div class="inv-backdrop" onclick="closeInv()"></div>
   <div class="inv-panel">
     <div class="inv-header">
-      <h2>Inventory Data</h2>
+      <h2>My Inventory</h2>
       <button class="btn btn-sm btn-outline" onclick="closeInv()">✕ Close</button>
     </div>
     <div class="inv-toolbar">
-      <input class="inv-search" type="search" placeholder="Search…" oninput="renderInvList(this.value)" id="invSearch">
+      <input class="inv-search" type="search" placeholder="Search material…" oninput="renderInvList(this.value)" id="invSearch">
       <div class="inv-toolbar-btns">
-        <button class="btn btn-sm btn-outline" onclick="openImport()">Import</button>
-        <button class="btn btn-sm btn-outline" onclick="doExport()">Export</button>
-        <button class="btn btn-sm btn-outline" style="color:var(--red);border-color:var(--red)" onclick="clearInv()">Clear</button>
+        <button class="btn btn-sm btn-outline" onclick="openImport()">Import JSON</button>
+        <button class="btn btn-sm btn-outline" onclick="doExport()">Export JSON</button>
+        <button class="btn btn-sm btn-outline" style="color:var(--red);border-color:var(--red)" onclick="clearInv()">Clear all</button>
       </div>
     </div>
     <div class="inv-list" id="invList"></div>
@@ -563,7 +377,7 @@ tr:last-child td { border-bottom: none; }
 <!-- ── Import/Export modal ──────────────────────────────────────────────────── -->
 <div class="modal-bg hidden" id="importModal">
   <div class="modal">
-    <h3>Import Inventory JSON</h3>
+    <h3>Import Inventory (JSON)</h3>
     <textarea id="importTa" placeholder='{"Gold Bar": 100, "Iron Ore": 500, ...}'></textarea>
     <div class="modal-btns">
       <button class="btn btn-outline" onclick="closeImport()">Cancel</button>
@@ -585,86 +399,125 @@ const CATEGORY_LABELS = {
   materials:'Materials (craft)',
 };
 
+// Upgrade chains: item → list of prerequisites (in order)
 const CHAINS = {
+  // ── Axe ────────────────────────────────────────────────────────────────────
   "Golden Hammer (50)":         ["Morningstar (38)"],
   "War Hammer (60)":            ["Morningstar (38)", "Golden Hammer (50)"],
   "Angel's Axe (70)":           ["Morningstar (38)", "Golden Hammer (50)", "War Hammer (60)"],
   "Iron Soul (80)":             ["Morningstar (38)", "Golden Hammer (50)", "War Hammer (60)", "Angel's Axe (70)"],
+
   "Great Silver Axe (55)":      ["Battle Axe (44)"],
   "Great Golden Axe (65)":      ["Battle Axe (44)", "Great Silver Axe (55)"],
   "Taebaek Axe (75)":           ["Battle Axe (44)", "Great Silver Axe (55)", "Great Golden Axe (65)"],
   "Spirit Axe (85)":            ["Battle Axe (44)", "Great Silver Axe (55)", "Great Golden Axe (65)", "Taebaek Axe (75)"],
+
+  // ── Sword ──────────────────────────────────────────────────────────────────
   "Great Tiger Sword(50)":      ["Gladius (38)"],
   "Katzbalger (60)":            ["Gladius (38)", "Great Tiger Sword(50)"],
   "Deathblow Sword(70)":        ["Gladius (38)", "Great Tiger Sword(50)", "Katzbalger (60)"],
   "Zweihander (80)":            ["Gladius (38)", "Great Tiger Sword(50)", "Katzbalger (60)", "Deathblow Sword(70)"],
+
   "Japanese Sword (55)":        ["Damascus (44)"],
   "Dragon Knight Sword (65)":   ["Damascus (44)", "Japanese Sword (55)"],
   "Bastard Sword(75)":          ["Damascus (44)", "Japanese Sword (55)", "Dragon Knight Sword (65)"],
   "Iron Slasher (85)":          ["Damascus (44)", "Japanese Sword (55)", "Dragon Knight Sword (65)", "Bastard Sword(75)"],
+
+  // ── Spear ──────────────────────────────────────────────────────────────────
   "Wing Spear (60)":            ["Barchha (38)"],
   "Grand Screw Spear (70)":     ["Barchha (38)", "Wing Spear (60)"],
   "Halberd (80)":               ["Barchha (38)", "Wing Spear (60)", "Grand Screw Spear (70)"],
+
   "Grand Scythe (55)":          ["Iron-Fist (44)"],
   "Moon Sprit Spear (65)":      ["Iron-Fist (44)", "Grand Scythe (55)"],
   "Bardiche (75)":              ["Iron-Fist (44)", "Grand Scythe (55)", "Moon Sprit Spear (65)"],
   "Lightning Spear (85)":       ["Iron-Fist (44)", "Grand Scythe (55)", "Moon Sprit Spear (65)", "Bardiche (75)"],
+
+  // ── Bow ────────────────────────────────────────────────────────────────────
   "Heavy Crossbow (50)":        ["Light Crossbow (38)"],
   "Skill Crossbow (60)":        ["Light Crossbow (38)", "Heavy Crossbow (50)"],
   "Composite Bow (70)":         ["Light Crossbow (38)", "Heavy Crossbow (50)", "Skill Crossbow (60)"],
   "Arbalest (80)":              ["Light Crossbow (38)", "Heavy Crossbow (50)", "Skill Crossbow (60)", "Composite Bow (70)"],
+
   "Robin Hood (55)":            ["Hunter's Bow (44)"],
   "Elfin Bow (65)":             ["Hunter's Bow (44)", "Robin Hood (55)"],
   "Taebaek Bow (75)":           ["Hunter's Bow (44)", "Robin Hood (55)", "Elfin Bow (65)"],
   "Thunderbolt Bow (85)":       ["Hunter's Bow (44)", "Robin Hood (55)", "Elfin Bow (65)", "Taebaek Bow (75)"],
+
+  // ── Gun ────────────────────────────────────────────────────────────────────
   "Grenade Launcher (50)":      ["Musketeer's Gun (38)"],
   "Burst Shotgun (60)":         ["Musketeer's Gun (38)", "Grenade Launcher (50)"],
   "Sniper's Rifle (70)":        ["Musketeer's Gun (38)", "Grenade Launcher (50)", "Burst Shotgun (60)"],
   "Hellfire (80)":              ["Musketeer's Gun (38)", "Grenade Launcher (50)", "Burst Shotgun (60)", "Sniper's Rifle (70)"],
+
   "Earthquake Launcher (55)":   ["Dragon Shotgun (44)"],
   "Dragon Rifle (65)":          ["Dragon Shotgun (44)", "Earthquake Launcher (55)"],
   "Taebaek Cannon (75)":        ["Dragon Shotgun (44)", "Earthquake Launcher (55)", "Dragon Rifle (65)"],
   "Heavy Wind Gun (85)":        ["Dragon Shotgun (44)", "Earthquake Launcher (55)", "Dragon Rifle (65)", "Taebaek Cannon (75)"],
+
+  // ── Cane ───────────────────────────────────────────────────────────────────
   "Wing Cane (50)":             ["Snake Cane (38)"],
   "Star Cane (60)":             ["Snake Cane (38)", "Wing Cane (50)"],
   "Golden Spear Cane (70)":     ["Snake Cane (38)", "Wing Cane (50)", "Star Cane (60)"],
   "Orchestra Tact (80)":        ["Snake Cane (38)", "Wing Cane (50)", "Star Cane (60)", "Golden Spear Cane (70)"],
+
   "Hermit's Cane (55)":         ["Ivory Cane (44)"],
   "Spirit Cane (65)":           ["Ivory Cane (44)", "Hermit's Cane (55)"],
   "Taebaek Cane (75)":          ["Ivory Cane (44)", "Hermit's Cane (55)", "Spirit Cane (65)"],
   "Fairy Cane (85)":            ["Ivory Cane (44)", "Hermit's Cane (55)", "Spirit Cane (65)", "Taebaek Cane (75)"],
+
+  // ── Armor ──────────────────────────────────────────────────────────────────
   "Taebaek Armor (50)":          ["Iron Armor (35)"],
   "Black Carabinieer Armor (60)":["Iron Armor (35)", "Taebaek Armor (50)"],
   "Flame Armor (85)":            ["Iron Armor (35)", "Taebaek Armor (50)", "Black Carabinieer Armor (60)"],
+
   "Metal Armor (45)":            ["Moonlight Armor (40)"],
   "White Plate Armor (55)":      ["Moonlight Armor (40)", "Metal Armor (45)"],
   "Frozen Armor (75)":           ["Moonlight Armor (40)", "Metal Armor (45)", "White Plate Armor (55)"],
+
+  // ── Helmet ─────────────────────────────────────────────────────────────────
   "Taebaek Helmet (50)":         ["Iron Helmet (35)"],
   "Black Head Guard (60)":       ["Iron Helmet (35)", "Taebaek Helmet (50)"],
   "Flame Helmet (85)":           ["Iron Helmet (35)", "Taebaek Helmet (50)", "Black Head Guard (60)"],
+
   "White Plate Helm (55)":       ["Moonlight Helmet (40)"],
   "Frozen Helmet (75)":          ["Moonlight Helmet (40)", "White Plate Helm (55)"],
+
+  // ── Belt ───────────────────────────────────────────────────────────────────
   "Taebaek Belt (50)":           ["Moonshine Belt (40)"],
   "Black Plate Belt (65)":       ["Moonshine Belt (40)", "Taebaek Belt (50)"],
   "Flame Belt (85)":             ["Moonshine Belt (40)", "Taebaek Belt (50)", "Black Plate Belt (65)"],
+
   "Sturdy Metal Belt (45)":      ["Heavy Metal Belt (35)"],
   "Comet Belt (60)":             ["Heavy Metal Belt (35)", "Sturdy Metal Belt (45)"],
   "Frozen Belt (75)":            ["Heavy Metal Belt (35)", "Sturdy Metal Belt (45)", "Comet Belt (60)"],
+
+  // ── Shoes ──────────────────────────────────────────────────────────────────
   "Black Shoes (45)":            ["Rapid Shoes (35)"],
   "Red Shoes (60)":              ["Rapid Shoes (35)", "Black Shoes (45)"],
   "Frozen Shoes (75)":           ["Rapid Shoes (35)", "Black Shoes (45)", "Red Shoes (60)"],
+
   "Green Shoes (45)":            ["Glass Shoes (35)"],
   "Brown Shoes (60)":            ["Glass Shoes (35)", "Green Shoes (45)"],
   "Flame Shoes (85)":            ["Glass Shoes (35)", "Green Shoes (45)", "Brown Shoes (60)"],
+
+  // ── Cloak (recipe-embedded chains) ─────────────────────────────────────────
   "Archangel's Wing": ["Angel Wings"],
   "Satan's Wing":     ["Devil Wings"],
 };
 
+// Flat map: item name → recipe
 const ALL_RECIPES = {};
 for (const [cat, items] of Object.entries(craftingData)) {
-  for (const [name, recipe] of Object.entries(items)) ALL_RECIPES[name] = recipe;
+  for (const [name, recipe] of Object.entries(items)) {
+    ALL_RECIPES[name] = recipe;
+  }
 }
+
+// Craftable sub-materials
 const CRAFTABLE = craftingData.materials || {};
+
+// All unique ingredient names (for inventory panel)
 const ALL_MATS = (() => {
   const s = new Set();
   for (const r of Object.values(ALL_RECIPES)) for (const m of Object.keys(r)) s.add(m);
@@ -673,57 +526,91 @@ const ALL_MATS = (() => {
 
 // ── Inventory ─────────────────────────────────────────────────────────────────
 let INV = {};
-function loadInv() { try { INV = JSON.parse(localStorage.getItem('gz_inv') || '{}'); } catch { INV = {}; } }
+function loadInv() {
+  try { INV = JSON.parse(localStorage.getItem('gz_inv') || '{}'); } catch { INV = {}; }
+}
 function saveInv() {
   localStorage.setItem('gz_inv', JSON.stringify(INV));
   localStorage.setItem('gz_inv_ts', new Date().toLocaleString());
   updateInvCount();
 }
 function getQ(mat) { return INV[mat] || 0; }
-function setQ(mat, qty) { if (qty > 0) INV[mat] = qty; else delete INV[mat]; saveInv(); recalc(); }
+function setQ(mat, qty) {
+  if (qty > 0) INV[mat] = qty; else delete INV[mat];
+  saveInv();
+  recalc();
+}
 function updateInvCount() {
   const n = Object.keys(INV).length;
-  document.getElementById('invCount').textContent = n ? `[${n} units tracked]` : '';
+  document.getElementById('invCount').textContent = n ? `${n} items tracked` : '';
 }
 
 // ── Item selectors ────────────────────────────────────────────────────────────
+
 function buildSelector() {
   const catSelect = document.getElementById('categorySelect');
-  const sortedCats = Object.keys(craftingData).sort((a, b) => (CATEGORY_LABELS[a]||a).localeCompare(CATEGORY_LABELS[b]||b));
+  const sortedCats = Object.keys(craftingData).sort((a, b) =>
+    (CATEGORY_LABELS[a] || a).localeCompare(CATEGORY_LABELS[b] || b)
+  );
   for (const cat of sortedCats) {
     const opt = document.createElement('option');
-    opt.value = cat; opt.textContent = CATEGORY_LABELS[cat] || cat;
+    opt.value = cat;
+    opt.textContent = CATEGORY_LABELS[cat] || cat;
     catSelect.appendChild(opt);
   }
   populateItemSelect('all');
 }
-function itemLevel(name) { const m = name.match(/\((\d+)\)/); return m ? parseInt(m[1]) : 0; }
-function sortByLevel(names) { return names.sort((a, b) => itemLevel(a) - itemLevel(b) || a.localeCompare(b)); }
+
+function itemLevel(name) {
+  const m = name.match(/\((\d+)\)/);
+  return m ? parseInt(m[1]) : 0;
+}
+
+function sortByLevel(names) {
+  return names.sort((a, b) => itemLevel(a) - itemLevel(b) || a.localeCompare(b));
+}
+
 function populateItemSelect(cat) {
   const sel = document.getElementById('itemSelect');
   const prev = sel.value;
   sel.innerHTML = '<option value="">— select item —</option>';
+
   if (cat === 'all') {
-    const sortedCats = Object.keys(craftingData).sort((a, b) => (CATEGORY_LABELS[a]||a).localeCompare(CATEGORY_LABELS[b]||b));
+    const sortedCats = Object.keys(craftingData).sort((a, b) =>
+      (CATEGORY_LABELS[a] || a).localeCompare(CATEGORY_LABELS[b] || b)
+    );
     for (const c of sortedCats) {
       const group = document.createElement('optgroup');
       group.label = CATEGORY_LABELS[c] || c;
       for (const name of sortByLevel(Object.keys(craftingData[c]))) {
-        const opt = document.createElement('option'); opt.value = name; opt.textContent = name;
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
         group.appendChild(opt);
       }
       sel.appendChild(group);
     }
   } else {
     for (const name of sortByLevel(Object.keys(craftingData[cat] || {}))) {
-      const opt = document.createElement('option'); opt.value = name; opt.textContent = name;
+      const opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = name;
       sel.appendChild(opt);
     }
   }
+
   if (prev && [...sel.options].some(o => o.value === prev)) sel.value = prev;
 }
-function onCategoryChange() { populateItemSelect(document.getElementById('categorySelect').value); recalc(); }
-function onItemChange() { recalc(); }
+
+function onCategoryChange() {
+  const cat = document.getElementById('categorySelect').value;
+  populateItemSelect(cat);
+  recalc();
+}
+
+function onItemChange() {
+  recalc();
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function flattenRaw(recipe, mult = 1) {
@@ -742,19 +629,23 @@ function flattenRaw(recipe, mult = 1) {
   }
   return raw;
 }
+
 function barHtml(pct) {
   const cls = pct >= 100 ? 'ok' : pct >= 50 ? 'warn' : 'bad';
   return `<div class="bar-wrap"><div class="bar ${cls}" style="width:${Math.min(100,pct).toFixed(1)}%"></div></div>`
        + `<span class="pct ${cls}">${pct.toFixed(0)}%</span>`;
 }
 function missHtml(miss) {
-  return miss > 0 ? `<span class="bad">-${miss.toLocaleString()}</span>` : `<span class="ok">✓</span>`;
+  return miss > 0 ? `<span class="bad">-${miss.toLocaleString()}</span>`
+                  : `<span class="ok">✓</span>`;
 }
 function qtyInput(mat, val) {
   const k = mat.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
   return `<input class="mat-qty-input" type="number" min="0" value="${val || ''}" placeholder="0"
-    onchange="setQ('${k}', parseInt(this.value)||0)" onclick="this.select()">`;
+    onchange="setQ('${k}', parseInt(this.value)||0)"
+    onclick="this.select()">`;
 }
+
 function matRowHtml(mat, need, have, sub) {
   const miss = Math.max(0, need - have);
   const pct  = need > 0 ? Math.min(100, have / need * 100) : 100;
@@ -783,12 +674,31 @@ function toggleWcMat(btn, id) {
   el.classList.toggle('open');
   btn.textContent = el.classList.contains('open') ? '▲ materials' : '▼ materials';
 }
+function renderMatBody(tbody, matMap) {
+  const base = [], craft = [];
+  for (const [m, n] of Object.entries(matMap)) {
+    (CRAFTABLE[m] ? craft : base).push([m, n]);
+  }
+  let html = '';
+  if (base.length) {
+    html += `<tr><td colspan="5" class="sec-label">Base materials</td></tr>`;
+    for (const [m, n] of base) html += matRowHtml(m, n, getQ(m), null);
+  }
+  if (craft.length) {
+    html += `<tr><td colspan="5" class="sec-label">Intermediate (craftable)</td></tr>`;
+    for (const [m, n] of craft) html += matRowHtml(m, n, getQ(m), CRAFTABLE[m]);
+  }
+  tbody.innerHTML = html;
+}
 
 // ── Material Columns ──────────────────────────────────────────────────────────
 function renderMatColumns(item, recipe, wantQty) {
+  // Recursively build node tree; craftQty = how many of this ingredient to produce
   function buildTree(recipeMap, craftQty) {
     return Object.entries(recipeMap).map(([mat, qty]) => {
-      const need = qty * craftQty, have = getQ(mat), miss = Math.max(0, need - have);
+      const need = qty * craftQty;
+      const have = getQ(mat);
+      const miss = Math.max(0, need - have);
       const isCraft = !!CRAFTABLE[mat];
       const node = {mat, need, have, miss, isCraft, children: null};
       if (isCraft && miss > 0) node.children = buildTree(CRAFTABLE[mat], miss);
@@ -796,16 +706,24 @@ function renderMatColumns(item, recipe, wantQty) {
     });
   }
   const tree = buildTree(recipe, wantQty);
+
+  // Flatten tree into columns dynamically (any depth)
+  // columns[0] = {type:'main', items:[]}
+  // columns[N] = {type:'sub',  groups:[{parent, items}]}
   const columns = [{type: 'main', items: tree}];
   let current = tree;
   while (true) {
     const groups = [];
-    for (const it of current) if (it.isCraft && it.children?.length) groups.push({parent: it.mat, items: it.children});
+    for (const it of current) {
+      if (it.isCraft && it.children?.length) groups.push({parent: it.mat, items: it.children});
+    }
     if (!groups.length) break;
     columns.push({type: 'sub', groups});
     current = groups.flatMap(g => g.items);
   }
+
   function esc(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
+
   function nodeHtml(it) {
     const pct = it.need > 0 ? Math.min(100, it.have / it.need * 100) : 100;
     const cls = pct >= 100 ? 'ok' : pct >= 50 ? 'warn' : 'bad';
@@ -818,11 +736,13 @@ function renderMatColumns(item, recipe, wantQty) {
       <span class="mc-need">×${it.need.toLocaleString()}</span>
       <input class="mat-qty-input" type="number" min="0"
         value="${it.have || ''}" placeholder="0"
-        onchange="setQ('${k}', parseInt(this.value)||0)" onclick="this.select()">
+        onchange="setQ('${k}', parseInt(this.value)||0)"
+        onclick="this.select()">
       ${barHtml(pct)}
       ${it.miss > 0 ? `<span class="bad">-${it.miss.toLocaleString()}</span>` : `<span class="ok">✓</span>`}
     </div>`;
   }
+
   let colsHtml = '';
   for (let ci = 0; ci < columns.length; ci++) {
     const col = columns[ci];
@@ -839,9 +759,10 @@ function renderMatColumns(item, recipe, wantQty) {
     }
     colsHtml += `<div class="mc-col ${colClass}">${inner}</div>`;
   }
+
   return `
     <div class="mc-header">
-      <span style="color:var(--red)">▸</span>
+      <span style="color:var(--purple)">★</span>
       <span class="titem-name">${item}</span>
       <span class="titem-qty">×${wantQty}</span>
     </div>
@@ -849,108 +770,165 @@ function renderMatColumns(item, recipe, wantQty) {
 }
 
 // ── Column alignment ──────────────────────────────────────────────────────────
+// Vertically aligns each sub-column group with the craftable node in the
+// previous column that owns it. Uses margin-top so groups stay in normal
+// flow; tracks cumulative displacement so subsequent groups don't shift past
+// their targets.
 function alignColumns() {
   const cols = document.querySelector('.mc-columns');
   if (!cols) return;
   const colEls = Array.from(cols.querySelectorAll('.mc-col'));
   if (colEls.length <= 1) { requestAnimationFrame(drawConnectors); return; }
+
+  // Reset all margins so measurements start from natural layout
   colEls.forEach(col => col.querySelectorAll('.mc-group').forEach(g => { g.style.marginTop = ''; }));
+
   requestAnimationFrame(() => {
     for (let ci = 1; ci < colEls.length; ci++) {
-      const col = colEls[ci], prevCol = colEls[ci - 1];
-      const prevRect = prevCol.getBoundingClientRect(), colRect = col.getBoundingClientRect();
+      const col     = colEls[ci];
+      const prevCol = colEls[ci - 1];
+      const prevRect = prevCol.getBoundingClientRect();
+      const colRect  = col.getBoundingClientRect();
+
       const groups = Array.from(col.querySelectorAll('.mc-group'));
+
+      // Measure every group's natural position + its parent node's center
+      // (getBoundingClientRect here triggers a reflow, picking up any margins
+      //  already applied to earlier columns in this same loop pass)
       const data = groups.map(grp => {
         const pname = grp.dataset.parent;
         let pNode = null;
-        prevCol.querySelectorAll('.mc-node[data-craft]').forEach(n => { if (n.dataset.craft === pname) pNode = n; });
-        const gr = grp.getBoundingClientRect(), pr = pNode?.getBoundingClientRect();
-        return { grp, naturalTop: gr.top - colRect.top, height: gr.height,
-                 pCenterY: pr ? pr.top + pr.height / 2 - prevRect.top : null };
+        prevCol.querySelectorAll('.mc-node[data-craft]').forEach(n => {
+          if (n.dataset.craft === pname) pNode = n;
+        });
+        const gr = grp.getBoundingClientRect();
+        const pr = pNode?.getBoundingClientRect();
+        return {
+          grp,
+          naturalTop : gr.top - colRect.top,
+          height     : gr.height,
+          pCenterY   : pr ? pr.top + pr.height / 2 - prevRect.top : null
+        };
       });
-      const targets = []; let minBottom = 0;
+
+      // Target position for each group (collision-aware)
+      const targets = [];
+      let minBottom = 0;
       for (const d of data) {
         const desired = d.pCenterY !== null ? d.pCenterY - d.height / 2 : minBottom;
-        const actual = Math.max(minBottom, Math.max(0, desired));
-        targets.push(actual); minBottom = actual + d.height + 6;
+        const actual  = Math.max(minBottom, Math.max(0, desired));
+        targets.push(actual);
+        minBottom = actual + d.height + 6;
       }
+
+      // Apply margin-top, adjusting for cumulative displacement so far
       let cumDisp = 0;
       for (let i = 0; i < data.length; i++) {
         const margin = targets[i] - data[i].naturalTop - cumDisp;
-        if (margin > 0) { data[i].grp.style.marginTop = margin + 'px'; cumDisp += margin; }
+        if (margin > 0) {
+          data[i].grp.style.marginTop = margin + 'px';
+          cumDisp += margin;
+        }
       }
     }
+
     requestAnimationFrame(drawConnectors);
   });
 }
 
-// ── Column connectors (NieR-style: red dashed lines) ──────────────────────────
+// ── Column connectors (SVG bezier lines) ──────────────────────────────────────
 function drawConnectors() {
   const cols = document.querySelector('.mc-columns');
   if (!cols) return;
   cols.querySelector('svg.mc-connectors')?.remove();
+
+  // Pair each data-craft node with its matching data-parent group label
   const craftNodes = Array.from(cols.querySelectorAll('.mc-node[data-craft]'));
   const groupEls   = Array.from(cols.querySelectorAll('.mc-group[data-parent]'));
   const pairs = [];
   for (const node of craftNodes) {
-    const name = node.dataset.craft;
-    const grp  = groupEls.find(g => g.dataset.parent === name);
+    const name  = node.dataset.craft;
+    const grp   = groupEls.find(g => g.dataset.parent === name);
     const label = grp?.querySelector('.mc-group-label');
     if (label) pairs.push({from: node, to: label});
   }
   if (!pairs.length) return;
-  const w = cols.scrollWidth, h = cols.scrollHeight;
+
+  const w  = cols.scrollWidth, h = cols.scrollHeight;
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.classList.add('mc-connectors');
   svg.setAttribute('width', w); svg.setAttribute('height', h);
   svg.style.cssText = 'position:absolute;left:0;top:0;pointer-events:none;overflow:visible';
-  const cr = cols.getBoundingClientRect(), sl = cols.scrollLeft, st = cols.scrollTop;
-  const connColor = getComputedStyle(document.documentElement).getPropertyValue('--connector').trim() || 'rgba(176,24,40,0.5)';
+
+  const cr = cols.getBoundingClientRect();
+  const sl = cols.scrollLeft, st = cols.scrollTop;
+
   for (const {from, to} of pairs) {
-    const fr = from.getBoundingClientRect(), tr = to.getBoundingClientRect();
-    const x1 = fr.right - cr.left + sl + 3, y1 = fr.top + fr.height / 2 - cr.top + st;
-    const x2 = tr.left  - cr.left + sl - 3, y2 = tr.top + tr.height / 2 - cr.top + st;
+    const fr = from.getBoundingClientRect();
+    const tr = to.getBoundingClientRect();
+    const x1 = fr.right  - cr.left + sl + 3;
+    const y1 = fr.top + fr.height / 2 - cr.top + st;
+    const x2 = tr.left   - cr.left + sl - 3;
+    const y2 = tr.top + tr.height / 2 - cr.top + st;
     const mx = (x1 + x2) / 2;
+
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     path.setAttribute('d', `M${x1} ${y1} C${mx} ${y1},${mx} ${y2},${x2} ${y2}`);
-    path.setAttribute('stroke', connColor);
-    path.setAttribute('stroke-width', '1');
+    path.setAttribute('stroke', '#4a4a9a');
+    path.setAttribute('stroke-width', '1.5');
     path.setAttribute('fill', 'none');
-    path.setAttribute('stroke-dasharray', '4 3');
+    path.setAttribute('stroke-dasharray', '5 3');
     svg.appendChild(path);
+
     const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-    arrow.setAttribute('points', `${x2},${y2} ${x2-6},${y2-3} ${x2-6},${y2+3}`);
-    arrow.setAttribute('fill', connColor);
+    arrow.setAttribute('points', `${x2},${y2} ${x2-7},${y2-4} ${x2-7},${y2+4}`);
+    arrow.setAttribute('fill', '#4a4a9a');
     svg.appendChild(arrow);
   }
+
   cols.appendChild(svg);
 }
 
 // ── Recalculate ───────────────────────────────────────────────────────────────
 let currentRelevantMats = new Set();
+
 function recalc() {
   const item    = document.getElementById('itemSelect').value;
   const wantQty = Math.max(1, parseInt(document.getElementById('qty').value) || 1);
   const recipe  = ALL_RECIPES[item];
+
   if (!item || !recipe) {
     ['summaryCard','chainCard','matCard','grandCard'].forEach(id => document.getElementById(id).classList.add('hidden'));
-    currentRelevantMats = new Set(); return;
+    currentRelevantMats = new Set();
+    return;
   }
+
   document.getElementById('sLbl').textContent = item;
-  const chain = CHAINS[item] || [], hasChain = chain.length > 0;
+
+  const chain    = CHAINS[item] || [];
+  const hasChain = chain.length > 0;
+
+  // Collect relevant materials for inventory highlight
   currentRelevantMats = new Set();
-  const collectMats = r => { for (const [m] of Object.entries(r)) { currentRelevantMats.add(m); if (CRAFTABLE[m]) collectMats(CRAFTABLE[m]); } };
+  const collectMats = r => { for (const [m, _] of Object.entries(r)) { currentRelevantMats.add(m); if (CRAFTABLE[m]) collectMats(CRAFTABLE[m]); } };
   collectMats(recipe);
   for (const w of chain) if (ALL_RECIPES[w]) collectMats(ALL_RECIPES[w]);
 
+  // ── Chain ────────────────────────────────────────────────────────────────
   if (hasChain) {
     const row = document.getElementById('chainRow');
     row.innerHTML = '';
     [...chain, item].forEach((wname, idx) => {
-      const isTarget = wname === item, wrec = ALL_RECIPES[wname]; if (!wrec) return;
-      const need = wantQty, have = getQ(wname), miss = Math.max(0, need - have);
-      const pct = Math.min(100, have / need * 100), uid = `wc${idx}`;
+      const isTarget = wname === item;
+      const wrec = ALL_RECIPES[wname]; if (!wrec) return;
+      const need = wantQty, have = getQ(wname);
+      const miss = Math.max(0, need - have);
+      const pct  = Math.min(100, have / need * 100);
+      const cls  = pct >= 100 ? 'ok' : pct >= 50 ? 'warn' : 'bad';
+      const uid  = `wc${idx}`;
+
       if (idx > 0) row.insertAdjacentHTML('beforeend', `<div class="chain-sep">→</div>`);
+
       let matRows = '';
       for (const [m, p] of Object.entries(wrec)) {
         const mn = p * need, mh = getQ(m), mok = mh >= mn;
@@ -960,19 +938,27 @@ function recalc() {
         <div class="wc ${isTarget ? 'target' : ''}">
           <div><div class="wc-badge">${isTarget ? 'target' : 'upgrade'}</div>
           <div class="wc-name">${wname}</div></div>
-          <div class="wc-stats">Need: <span class="v">${need}</span><br>Have: <span class="v">${have}</span><br>Missing: <span class="${miss>0?'bad':'ok'}">${miss>0?'-'+miss:'✓'}</span></div>
+          <div class="wc-stats">
+            Need: <span class="v">${need}</span><br>
+            Have: <span class="v">${have}</span><br>
+            Missing: <span class="${miss > 0 ? 'bad' : 'ok'}">${miss > 0 ? '-' + miss : '✓'}</span>
+          </div>
           <div>${barHtml(pct)}</div>
           <button class="wc-toggle" onclick="toggleWcMat(this,'${uid}')">▲ materials</button>
           <div class="wc-mat-list open" id="${uid}"><dl>${matRows}</dl></div>
         </div>`);
     });
     document.getElementById('chainCard').classList.remove('hidden');
-  } else { document.getElementById('chainCard').classList.add('hidden'); }
+  } else {
+    document.getElementById('chainCard').classList.add('hidden');
+  }
 
+  // ── Own materials (tree) ──────────────────────────────────────────────────
   document.getElementById('matTree').innerHTML = renderMatColumns(item, recipe, wantQty);
   document.getElementById('matCard').classList.remove('hidden');
   requestAnimationFrame(alignColumns);
 
+  // ── Grand total (chain + own, flattened) ──────────────────────────────────
   let grand = flattenRaw(recipe, wantQty);
   if (hasChain) {
     for (const w of chain) {
@@ -983,11 +969,15 @@ function recalc() {
     const gb = document.getElementById('grandBody');
     gb.innerHTML = '';
     for (const [m, n] of Object.entries(grand).sort((a,b) => b[1]-a[1])) {
-      gb.insertAdjacentHTML('beforeend', matRowHtml(m, n, getQ(m), null));
+      const h = getQ(m);
+      gb.insertAdjacentHTML('beforeend', matRowHtml(m, n, h, null));
     }
     document.getElementById('grandCard').classList.remove('hidden');
-  } else { document.getElementById('grandCard').classList.add('hidden'); }
+  } else {
+    document.getElementById('grandCard').classList.add('hidden');
+  }
 
+  // ── Summary ───────────────────────────────────────────────────────────────
   const rawAll = hasChain ? grand : flattenRaw(recipe, wantQty);
   let minSets = Infinity, bottleneck = '', pcts = [];
   for (const [m, total] of Object.entries(rawAll)) {
@@ -996,57 +986,78 @@ function recalc() {
     pcts.push(Math.min(100, h / total * 100));
     if (sets < minSets) { minSets = sets; bottleneck = m; }
   }
-  const avg = pcts.length ? pcts.reduce((a,b)=>a+b,0)/pcts.length : 0;
+  const avg = pcts.length ? pcts.reduce((a,b) => a+b, 0) / pcts.length : 0;
   document.getElementById('sCanCraft').textContent   = minSets === Infinity ? '—' : minSets.toLocaleString();
   document.getElementById('sPct').textContent        = avg.toFixed(0) + '%';
   document.getElementById('sBottleneck').textContent = bottleneck || '—';
   document.getElementById('summaryCard').classList.remove('hidden');
-  if (!document.getElementById('invOverlay').classList.contains('hidden'))
+
+  // refresh inventory panel if open
+  if (!document.getElementById('invOverlay').classList.contains('hidden')) {
     renderInvList(document.getElementById('invSearch').value);
+  }
 }
+
 
 // ── Inventory panel ───────────────────────────────────────────────────────────
 function openInv()  { document.getElementById('invOverlay').classList.remove('hidden'); renderInvList(''); }
 function closeInv() { document.getElementById('invOverlay').classList.add('hidden'); }
+
 function renderInvList(search = '') {
-  const q = search.toLowerCase(), list = document.getElementById('invList');
+  const q = search.toLowerCase();
+  const list = document.getElementById('invList');
   list.innerHTML = '';
+
+  // Split: relevant to current recipe vs. rest
   const relevant = ALL_MATS.filter(m => currentRelevantMats.has(m) && m.toLowerCase().includes(q));
   const others   = ALL_MATS.filter(m => !currentRelevantMats.has(m) && m.toLowerCase().includes(q));
+
   function renderRow(mat, isRel) {
     const qty = getQ(mat);
     const div = document.createElement('div');
     div.className = 'inv-row' + (isRel ? ' relevant' : '');
-    div.innerHTML = `<span class="inv-name${isRel?' relevant':''}">${mat}</span>
-      <input class="inv-qty" type="number" min="0" value="${qty||''}" placeholder="0"
+    div.innerHTML = `<span class="inv-name${isRel ? ' relevant' : ''}">${mat}</span>
+      <input class="inv-qty" type="number" min="0" value="${qty || ''}" placeholder="0"
         onchange="setQ('${mat.replace(/'/g,"\\'")}', parseInt(this.value)||0)">`;
     list.appendChild(div);
   }
+
   if (relevant.length) {
     const lbl = document.createElement('div');
-    lbl.className = 'inv-group-label'; lbl.textContent = '— current recipe —';
-    list.appendChild(lbl); relevant.forEach(m => renderRow(m, true));
+    lbl.className = 'inv-group-label';
+    lbl.textContent = '— current recipe —';
+    list.appendChild(lbl);
+    relevant.forEach(m => renderRow(m, true));
   }
+
   if (others.length) {
     const lbl = document.createElement('div');
     lbl.className = 'inv-group-label';
     lbl.textContent = relevant.length ? '— other materials —' : '— all materials —';
-    list.appendChild(lbl); others.forEach(m => renderRow(m, false));
+    list.appendChild(lbl);
+    others.forEach(m => renderRow(m, false));
   }
-  if (!relevant.length && !others.length)
-    list.innerHTML = `<div style="padding:16px;color:var(--faint);font-size:.78rem">No materials found.</div>`;
+
+  if (!relevant.length && !others.length) {
+    list.innerHTML = `<div style="padding:16px;color:var(--faint);font-size:.82rem">No materials found.</div>`;
+  }
+
   const ts = localStorage.getItem('gz_inv_ts');
   document.getElementById('invFooter').textContent = ts ? `Last saved: ${ts}` : 'Not saved yet';
 }
 
 // ── Import / Export ───────────────────────────────────────────────────────────
 function doExport() {
+  const json = JSON.stringify(INV, null, 2);
   const ta = document.createElement('textarea');
-  ta.style.cssText = 'position:fixed;opacity:0'; ta.value = JSON.stringify(INV, null, 2);
-  document.body.appendChild(ta); ta.select(); document.execCommand('copy');
-  document.body.removeChild(ta); alert('Inventory JSON copied to clipboard!');
+  ta.style.cssText = 'position:fixed;opacity:0';
+  ta.value = json;
+  document.body.appendChild(ta);
+  ta.select(); document.execCommand('copy');
+  document.body.removeChild(ta);
+  alert('Inventory JSON copied to clipboard!');
 }
-function openImport() {
+function openImport()  {
   document.getElementById('importTa').value = JSON.stringify(INV, null, 2);
   document.getElementById('importModal').classList.remove('hidden');
 }
@@ -1057,29 +1068,25 @@ function doImport() {
     if (typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('Expected object');
     INV = {};
     for (const [k, v] of Object.entries(parsed)) if (typeof v === 'number' && v > 0) INV[k] = v;
-    saveInv(); renderInvList(document.getElementById('invSearch').value); recalc(); closeImport();
-  } catch(e) { alert('Invalid JSON: ' + e.message); }
+    saveInv();
+    renderInvList(document.getElementById('invSearch').value);
+    recalc();
+    closeImport();
+  } catch(e) {
+    alert('Invalid JSON: ' + e.message);
+  }
 }
 function clearInv() {
   if (!confirm('Clear all inventory data?')) return;
-  INV = {}; saveInv(); renderInvList(document.getElementById('invSearch').value); recalc();
-}
-
-// ── Theme ─────────────────────────────────────────────────────────────────────
-function setTheme(name) {
-  document.documentElement.dataset.theme = name;
-  localStorage.setItem('gz_theme', name);
-  document.querySelectorAll('[data-theme-btn]').forEach(b => {
-    b.classList.toggle('active', b.dataset.themeBtn === name);
-  });
-  requestAnimationFrame(drawConnectors);
+  INV = {}; saveInv();
+  renderInvList(document.getElementById('invSearch').value);
+  recalc();
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 loadInv();
 buildSelector();
 updateInvCount();
-setTheme(localStorage.getItem('gz_theme') || 'nier');
 window.addEventListener('resize', () => requestAnimationFrame(alignColumns));
 </script>
 </body>

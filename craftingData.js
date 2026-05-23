@@ -3248,6 +3248,246 @@ const craftingData = {
             "Selenium": 2,
             "Strange Water Powder": 10,
             "Crystal Additive": 15
+        },
+        "Ruby Crystal[C]": {
+            "Ruby": 55,
+            "Argon": 4,
+            "Selenium": 3,
+            "Rubidium": 2,
+            "Mysterical Fire Powder": 2,
+            "Crystal Additive": 20
+        },
+        "Topaz Crystal[C]": {
+            "Topaz": 55,
+            "Argon": 10,
+            "Selenium": 10,
+            "Rubidium": 10,
+            "Mysterical Land Powder": 5,
+            "Crystal Additive": 20
+        },
+        "Amethyst Crystal[C]": {
+            "Amethyst": 55,
+            "Argon": 4,
+            "Selenium": 3,
+            "Rubidium": 2,
+            "Mysterical Wind Powder": 5,
+            "Crystal Additive": 20
+        },
+        "Diamond Crystal[C]": {
+            "Diamond": 55,
+            "Argon": 4,
+            "Selenium": 3,
+            "Rubidium": 2,
+            "Mysterical unattributable Powder": 5,
+            "Crystal Additive": 20
+        },
+        "Pearl Crystal[C]": {
+            "Pearl": 55,
+            "Argon": 4,
+            "Selenium": 10,
+            "Rubidium": 10,
+            "Mysterical unattributable Powder": 5,
+            "Crystal Additive": 20
+        },
+        "Sapphire Crystal[C]": {
+            "Sapphire": 55,
+            "Argon": 4,
+            "Selenium": 10,
+            "Rubidium": 10,
+            "Mysterical Water Powder": 5,
+            "Crystal Additive": 20
+        },
+        "Ruby Crystal[B]": {
+            "Ruby": 75,
+            "Argon": 5,
+            "Selenium": 4,
+            "Rubidium": 2,
+            "Mysterical Fire Powder": 7,
+            "Crystal Additive": 25
+        },
+        "Topaz Crystal[B]": {
+            "Topaz": 75,
+            "Argon": 5,
+            "Selenium": 4,
+            "Rubidium": 2,
+            "Mysterical Fire Powder": 7,
+            "Crystal Additive": 25
+        },
+        "Amethyst Crystal[B]": {
+            "Amethyst": 75,
+            "Argon": 5,
+            "Selenium": 4,
+            "Rubidium": 2,
+            "Mysterical Fire Powder": 7,
+            "Crystal Additive": 25
+        },
+        "Diamond Crystal[B]": {
+            "Diamond": 75,
+            "Argon": 5,
+            "Selenium": 4,
+            "Rubidium": 2,
+            "Mysterical Fire Powder": 7,
+            "Crystal Additive": 25
+        },
+        "Pearl Crystal[B]": {
+            "Pearl": 75,
+            "Argon": 5,
+            "Selenium": 4,
+            "Rubidium": 2,
+            "Mysterical unattributable Powder": 7,
+            "Crystal Additive": 25
+        },
+        "Sapphire Crystal[B]": {
+            "Sapphire": 75,
+            "Argon": 5,
+            "Selenium": 4,
+            "Rubidium": 2,
+            "Mysterical Water Powder": 7,
+            "Crystal Additive": 25
+        },
+        "Ruby Crystal[A]": {
+            "Ruby": 100,
+            "Selenium": 5,
+            "Rubidium": 4,
+            "Strontium": 2,
+            "Mysterical Fire Powder": 10,
+            "Crystal Additive": 30
+        },
+        "Topaz Crystal[A]": {
+            "Topaz": 100,
+            "Selenium": 5,
+            "Rubidium": 4,
+            "Strontium": 2,
+            "Mysterical Land Powder": 10,
+            "Crystal Additive": 30
+        },
+        "Amethyst Crystal[A]": {
+            "Amethyst": 100,
+            "Selenium": 5,
+            "Rubidium": 4,
+            "Strontium": 2,
+            "Mysterical Wind Powder": 10,
+            "Crystal Additive": 30
+        },
+        "Diamond Crystal[A]": {
+            "Diamond": 100,
+            "Selenium": 5,
+            "Rubidium": 4,
+            "Strontium": 2,
+            "Mysterical unattributable Powder": 10,
+            "Crystal Additive": 30
+        },
+        "Pearl Crystal[A]": {
+            "Pearl": 100,
+            "Selenium": 5,
+            "Rubidium": 4,
+            "Strontium": 2,
+            "Mysterical unattributable Powder": 10,
+            "Crystal Additive": 30
+        },
+        "Sapphire Crystal[A]": {
+            "Sapphire": 100,
+            "Selenium": 5,
+            "Rubidium": 4,
+            "Strontium": 2,
+            "Mysterical Water Powder": 10,
+            "Crystal Additive": 30
+        },
+        "Ruby Crystal[S1]": {
+            "Ruby": 125,
+            "Rubidium": 5,
+            "Strontium": 3,
+            "Cadium": 2,
+            "Illusionary Fire Powder": 5,
+            "Crystal Additive": 30
+        },
+        "Topaz Crystal[S1]": {
+            "Topaz": 125,
+            "Rubidium": 5,
+            "Strontium": 3,
+            "Cadium": 2,
+            "Illusionary Land Powder": 5,
+            "Crystal Additive": 30
+        },
+        "Amethyst Crystal[S1]": {
+            "Amethyst": 125,
+            "Rubidium": 5,
+            "Strontium": 3,
+            "Cadium": 2,
+            "Illusionary Wind Powder": 5,
+            "Crystal Additive": 30
+        },
+        "Diamond Crystal[S1]": {
+            "Diamond": 125,
+            "Rubidium": 5,
+            "Strontium": 3,
+            "Cadium": 2,
+            "Illusionary unattributable Powder": 5,
+            "Crystal Additive": 30
+        },
+        "Pearl Crystal[S1]": {
+            "Pearl": 125,
+            "Rubidium": 5,
+            "Strontium": 3,
+            "Cadium": 2,
+            "Illusionary unattributable Powder": 5,
+            "Crystal Additive": 30
+        },
+        "Sapphire Crystal[S1]": {
+            "Sapphire": 125,
+            "Rubidium": 5,
+            "Strontium": 3,
+            "Cadium": 2,
+            "Illusionary Water Powder": 5,
+            "Crystal Additive": 30
+        },
+        "Ruby Crystal[S2]": {
+            "Ruby": 150,
+            "Strontium": 4,
+            "Cadium": 3,
+            "Fradium": 2,
+            "Illusionary Fire Powder": 10,
+            "Crystal Additive": 30
+        },
+        "Topaz Crystal[S2]": {
+            "Topaz": 150,
+            "Strontium": 4,
+            "Cadium": 3,
+            "Fradium": 2,
+            "Illusionary Land Powder": 10,
+            "Crystal Additive": 30
+        },
+        "Amethyst Crystal[S2]": {
+            "Amethyst": 150,
+            "Strontium": 4,
+            "Cadium": 3,
+            "Fradium": 2,
+            "Illusionary Fire Powder": 10,
+            "Crystal Additive": 30
+        },
+        "Diamond Crystal[S2]": {
+            "Diamond": 150,
+            "Strontium": 4,
+            "Cadium": 3,
+            "Fradium": 2,
+            "Illusionary unattributable Powder": 10,
+            "Crystal Additive": 30
+        },
+        "Pearl Crystal[S2]": {
+            "Pearl": 150,
+            "Strontium": 4,
+            "Cadium": 3,
+            "Fradium": 2,
+            "Illusionary unattributable Powder": 10,
+            "Crystal Additive": 30
+        },
+        "Sapphire Crystal[S2]": {
+            "Sapphire": 150,
+            "Strontium": 4,
+            "Cadium": 3,
+            "Fradium": 2,
+            "Illusionary Wind Powder": 10,
+            "Crystal Additive": 30
         }
     },
     materials: {
