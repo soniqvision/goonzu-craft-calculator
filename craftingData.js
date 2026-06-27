@@ -204,6 +204,54 @@ const craftingData = {
             "Chinaberry tree": 200,
             "Coral": 380,
             "Polisher": 100
+        },
+        "Amazon Axe": {
+            "Frost Wyrm Axe (120)": 1,
+            "White Gold": 500,
+            "Cobalt": 600,
+            "Lazurite Tear Drop": 1000,
+            "Soul Stone": 500,
+            "Iron": 600,
+            "Emperor's Sacred Jewel": 1000,
+            "Adamantium": 500,
+            "Charcoal": 500,
+            "Polisher": 100
+        },
+        "Amazon Axe T1": {
+            "Amazon Axe": 1,
+            "White Gold": 500,
+            "Cobalt": 600,
+            "Lazurite Tear Drop": 1000,
+            "Soul Stone": 500,
+            "Iron": 600,
+            "Emperor's Sacred Jewel": 1000,
+            "Adamantium": 500,
+            "Blessing Stone": 30,
+            "Polisher": 100
+        },
+        "Amazon Axe T2": {
+            "Amazon Axe T1": 1,
+            "White Gold": 500,
+            "Cobalt": 600,
+            "Lazurite Tear Drop": 1000,
+            "Soul Stone": 500,
+            "Iron": 600,
+            "Emperor's Sacred Jewel": 1000,
+            "Adamantium": 500,
+            "Blessing Stone": 60,
+            "Polisher": 100
+        },
+        "Amazon Axe T3": {
+            "Amazon Axe T2": 1,
+            "White Gold": 500,
+            "Cobalt": 600,
+            "Lazurite Tear Drop": 1000,
+            "Soul Stone": 500,
+            "Iron": 600,
+            "Emperor's Sacred Jewel": 1000,
+            "Adamantium": 500,
+            "Blessing Stone": 90,
+            "Polisher": 100
         }
     },
     sword: {
@@ -419,6 +467,66 @@ const craftingData = {
             "Pearl": 380,
             "Polisher": 100,
             "Barley Straw": 200
+        },
+        "Dragon Sword": {
+            "Japanese Sword (55)": 1,
+            "Charcoal": 14,
+            "Cowhide": 18,
+            "Silk": 15,
+            "Gold Bar": 18,
+            "Silver Bar": 18,
+            "Iron": 15,
+            "Jade": 22,
+            "Pearl": 30,
+            "Polisher": 7
+        },
+        "Amazonas Sword": {
+            "Frost Wyrm Sword (120)": 1,
+            "White Gold": 500,
+            "Cobalt": 500,
+            "Lazurite Tear Drop": 1000,
+            "Soul Stone": 500,
+            "Iron": 600,
+            "Emperor's Sacred Jewel": 1000,
+            "Adamantium": 500,
+            "Charcoal": 500,
+            "Polisher": 100
+        },
+        "Amazonas Sword T1": {
+            "Amazonas Sword": 1,
+            "White Gold": 500,
+            "Cobalt": 500,
+            "Lazurite Tear Drop": 1000,
+            "Soul Stone": 500,
+            "Iron": 600,
+            "Emperor's Sacred Jewel": 1000,
+            "Adamantium": 500,
+            "Blessing Stone": 30,
+            "Polisher": 100
+        },
+        "Amazonas Sword T2": {
+            "Amazonas Sword T1": 1,
+            "White Gold": 500,
+            "Cobalt": 500,
+            "Lazurite Tear Drop": 1000,
+            "Soul Stone": 500,
+            "Iron": 600,
+            "Emperor's Sacred Jewel": 1000,
+            "Adamantium": 500,
+            "Blessing Stone": 60,
+            "Polisher": 100
+        },
+        "Amazonas Sword T3": {
+            "Amazonas Sword T2": 1,
+            "White Gold": 500,
+            "Cobalt": 500,
+            "Lazurite Tear Drop": 1000,
+            "Soul Stone": 500,
+            "Iron": 600,
+            "Emperor's Sacred Jewel": 1000,
+            "Adamantium": 500,
+            "Blessing Stone": 90,
+            "Polisher": 100
         }
     },
     spear: {
@@ -629,6 +737,66 @@ const craftingData = {
             "Charcoal": 180,
             "Amber": 380,
             "Polisher": 100
+        },
+        "Moon Spirit Spear": {
+            "Grand Scythe (55)": 1,
+            "Charcoal": 11,
+            "Cowhide": 20,
+            "Silk": 20,
+            "Gold Bar": 15,
+            "Silver Bar": 15,
+            "Iron": 15,
+            "Coal": 15,
+            "Amber": 15,
+            "Polisher": 7
+        },
+        "Amazonas Spear": {
+            "Frost Wyrm Spear (120)": 1,
+            "Mahogany": 500,
+            "Black Silk": 600,
+            "Lazurite Tear Drop": 1000,
+            "Soul Stone": 500,
+            "Gold Bar": 600,
+            "Emperor's Sacred Jewel": 1000,
+            "Adamantium": 500,
+            "Charcoal": 500,
+            "Polisher": 100
+        },
+        "Amazonas Spear T1": {
+            "Amazonas Spear": 1,
+            "Mahogany": 500,
+            "Black Silk": 600,
+            "Lazurite Tear Drop": 1000,
+            "Soul Stone": 500,
+            "Gold Bar": 600,
+            "Emperor's Sacred Jewel": 1000,
+            "Adamantium": 500,
+            "Blessing Stone": 30,
+            "Polisher": 100
+        },
+        "Amazonas Spear T2": {
+            "Amazonas Spear T1": 1,
+            "Mahogany": 500,
+            "Black Silk": 600,
+            "Lazurite Tear Drop": 1000,
+            "Soul Stone": 500,
+            "Gold Bar": 600,
+            "Emperor's Sacred Jewel": 1000,
+            "Adamantium": 500,
+            "Blessing Stone": 60,
+            "Polisher": 100
+        },
+        "Amazonas Spear T3": {
+            "Amazonas Spear T2": 1,
+            "Mahogany": 500,
+            "Black Silk": 600,
+            "Lazurite Tear Drop": 1000,
+            "Soul Stone": 500,
+            "Gold Bar": 600,
+            "Emperor's Sacred Jewel": 1000,
+            "Adamantium": 500,
+            "Blessing Stone": 90,
+            "Polisher": 100
         }
     },
     bow: {
@@ -817,6 +985,54 @@ const craftingData = {
             "White feathers": 180,
             "Chinaberry tree": 210,
             "Premium Silk": 380,
+            "Lubricant": 100
+        },
+        "Amazonas Bow": {
+            "Frost Wyrm Bow (120)": 1,
+            "White Gold": 500,
+            "Chinaberry tree": 600,
+            "Lazurite Tear Drop": 1000,
+            "Soul Stone": 500,
+            "Iron": 600,
+            "Emperor's Sacred Jewel": 1000,
+            "Adamantium": 500,
+            "Charcoal": 500,
+            "Lubricant": 100
+        },
+        "Amazonas Bow T1": {
+            "Amazonas Bow": 1,
+            "White Gold": 500,
+            "Chinaberry tree": 600,
+            "Lazurite Tear Drop": 1000,
+            "Soul Stone": 500,
+            "Iron": 600,
+            "Emperor's Sacred Jewel": 1000,
+            "Adamantium": 500,
+            "Blessing Stone": 30,
+            "Lubricant": 100
+        },
+        "Amazonas Bow T2": {
+            "Amazonas Bow T1": 1,
+            "White Gold": 500,
+            "Chinaberry tree": 600,
+            "Lazurite Tear Drop": 1000,
+            "Soul Stone": 500,
+            "Iron": 600,
+            "Emperor's Sacred Jewel": 1000,
+            "Adamantium": 500,
+            "Blessing Stone": 60,
+            "Lubricant": 100
+        },
+        "Amazonas Bow T3": {
+            "Amazonas Bow T2": 1,
+            "White Gold": 500,
+            "Chinaberry tree": 600,
+            "Lazurite Tear Drop": 1000,
+            "Soul Stone": 500,
+            "Iron": 600,
+            "Emperor's Sacred Jewel": 1000,
+            "Adamantium": 500,
+            "Blessing Stone": 90,
             "Lubricant": 100
         }
     },
@@ -1016,6 +1232,54 @@ const craftingData = {
             "Red Feather": 170,
             "Brass": 180,
             "Coal": 380,
+            "Lubricant": 100
+        },
+        "Amazon Rifle": {
+            "Frost Wyrm Gun (120)": 1,
+            "Black Silk": 600,
+            "Titanium": 600,
+            "Lazurite Tear Drop": 1000,
+            "Soul Stone": 500,
+            "Brass": 600,
+            "Emperor's Sacred Jewel": 1000,
+            "Adamantium": 500,
+            "Charcoal": 500,
+            "Lubricant": 100
+        },
+        "Amazon Rifle T1": {
+            "Amazon Rifle": 1,
+            "Black Silk": 600,
+            "Titanium": 600,
+            "Lazurite Tear Drop": 1000,
+            "Soul Stone": 500,
+            "Brass": 600,
+            "Emperor's Sacred Jewel": 1000,
+            "Adamantium": 500,
+            "Blessing Stone": 30,
+            "Lubricant": 100
+        },
+        "Amazon Rifle T2": {
+            "Amazon Rifle T1": 1,
+            "Black Silk": 600,
+            "Titanium": 600,
+            "Lazurite Tear Drop": 1000,
+            "Soul Stone": 500,
+            "Brass": 600,
+            "Emperor's Sacred Jewel": 1000,
+            "Adamantium": 500,
+            "Blessing Stone": 60,
+            "Lubricant": 100
+        },
+        "Amazon Rifle T3": {
+            "Amazon Rifle T2": 1,
+            "Black Silk": 600,
+            "Titanium": 600,
+            "Lazurite Tear Drop": 1000,
+            "Soul Stone": 500,
+            "Brass": 600,
+            "Emperor's Sacred Jewel": 1000,
+            "Adamantium": 500,
+            "Blessing Stone": 90,
             "Lubricant": 100
         }
     },
@@ -1221,6 +1485,54 @@ const craftingData = {
             "Red Feather": 160,
             "Lubricant": 100,
             "Cotton": 380
+        },
+        "Amazonas Cane": {
+            "Frost Wyrm Cane (120)": 1,
+            "Black Stone": 600,
+            "Chinaberry tree": 600,
+            "Lazurite Tear Drop": 1000,
+            "Soul Stone": 500,
+            "Brass": 600,
+            "Emperor's Sacred Jewel": 1000,
+            "Adamantium": 500,
+            "Charcoal": 500,
+            "Lubricant": 100
+        },
+        "Amazonas Cane T1": {
+            "Amazonas Cane": 1,
+            "Black Stone": 600,
+            "Chinaberry tree": 600,
+            "Lazurite Tear Drop": 1000,
+            "Soul Stone": 500,
+            "Brass": 600,
+            "Emperor's Sacred Jewel": 1000,
+            "Adamantium": 500,
+            "Blessing Stone": 30,
+            "Lubricant": 100
+        },
+        "Amazonas Cane T2": {
+            "Amazonas Cane T1": 1,
+            "Black Stone": 600,
+            "Chinaberry tree": 600,
+            "Lazurite Tear Drop": 1000,
+            "Soul Stone": 500,
+            "Brass": 600,
+            "Emperor's Sacred Jewel": 1000,
+            "Adamantium": 500,
+            "Blessing Stone": 60,
+            "Lubricant": 100
+        },
+        "Amazonas Cane T3": {
+            "Amazonas Cane T2": 1,
+            "Black Stone": 600,
+            "Chinaberry tree": 600,
+            "Lazurite Tear Drop": 1000,
+            "Soul Stone": 500,
+            "Brass": 600,
+            "Emperor's Sacred Jewel": 1000,
+            "Adamantium": 500,
+            "Blessing Stone": 90,
+            "Lubricant": 100
         }
     },
     armor: {
@@ -1612,6 +1924,18 @@ const craftingData = {
             "Silk": 80,
             "Jade": 60,
             "Leather Protector": 60
+        },
+        "Metal Helmet": {
+            "Iron Helmet (35)": 1,
+            "Cowhide": 20,
+            "Silk": 15,
+            "Gold Bar": 6,
+            "Silver Bar": 4,
+            "Steel": 25,
+            "Coal": 30,
+            "Jade": 10,
+            "Copper Ore": 15,
+            "Leather Protector": 7
         }
     },
     belt: {
@@ -1971,6 +2295,7 @@ const craftingData = {
         "Vampire Shoes (Special)": {
             "Black Stone": 80,
             "Blessing Stone": 25,
+            "Satin": 140,
             "Premium Silk": 50,
             "Gold Thread": 70,
             "Silver Thread": 70,
