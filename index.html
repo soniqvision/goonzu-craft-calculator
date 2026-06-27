@@ -468,6 +468,94 @@ tr:last-child td { border-bottom: none; }
 }
 .theme-btn.active { background: var(--purple2); color: var(--text); border-color: var(--red); }
 .theme-btn:hover:not(.active) { color: var(--text); border-color: var(--text); }
+
+/* ── Plans Panel ─────────────────────────────────────────────────────────────── */
+.plans-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  display: flex; justify-content: flex-start;
+}
+.plans-overlay.hidden { display: none !important; }
+.plans-backdrop { flex: 1; background: rgba(0,0,0,.7); }
+.plans-panel {
+  width: 300px; max-width: 95vw; background: var(--bg2);
+  border-right: 1px solid var(--border2); display: flex; flex-direction: column;
+  height: 100vh; overflow: hidden;
+}
+.plans-header {
+  padding: 11px 16px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+  flex-shrink: 0;
+}
+.plans-header h2 {
+  font-size: .68rem; color: var(--red);
+  text-transform: uppercase; letter-spacing: .16em; font-weight: normal;
+}
+.plans-toolbar {
+  padding: 10px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.plans-list { flex: 1; overflow-y: auto; }
+.plans-empty {
+  padding: 20px 16px; color: var(--faint); font-size: .76rem; line-height: 1.7;
+  text-align: center;
+}
+.plan-item {
+  display: flex; align-items: center; padding: 10px 16px; gap: 10px;
+  border-bottom: 1px solid var(--border);
+  transition: background .1s; border-left: 2px solid transparent;
+}
+.plan-item:hover { background: rgba(208,200,182,0.04); }
+.plan-item.active {
+  background: var(--purple3); border-left-color: var(--red);
+}
+.plan-info { flex: 1; min-width: 0; cursor: pointer; }
+.plan-name {
+  font-size: .8rem; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.plan-item.active .plan-name { color: var(--white); }
+.plan-meta { font-size: .56rem; color: var(--faint); margin-top: 3px; letter-spacing: .04em; }
+.plan-del {
+  background: none; border: none; color: var(--faint); cursor: pointer;
+  font-size: .72rem; padding: 3px 5px; flex-shrink: 0; border-radius: 0;
+  font-family: inherit; transition: color .1s;
+}
+.plan-del:hover { color: var(--red); }
+.plans-count {
+  padding: 6px 16px 6px; font-size: .52rem; color: var(--faint);
+  letter-spacing: .08em; border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.plan-new-form {
+  padding: 10px 16px 12px; border-bottom: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 8px; flex-shrink: 0;
+  background: var(--purple3);
+}
+.plan-form-label {
+  font-size: .5rem; color: var(--red); text-transform: uppercase; letter-spacing: .14em;
+}
+.plan-name-input {
+  background: transparent; border: none; border-bottom: 1px solid var(--border2);
+  color: var(--text); padding: 4px 2px; font-family: inherit; font-size: .82rem;
+  width: 100%; border-radius: 0;
+}
+.plan-name-input:focus { outline: none; border-bottom-color: var(--white); }
+.plan-form-btns { display: flex; gap: 6px; }
+.plan-edit {
+  background: none; border: none; color: var(--faint); cursor: pointer;
+  font-size: .72rem; padding: 3px 5px; flex-shrink: 0; border-radius: 0;
+  font-family: inherit; transition: color .1s;
+}
+.plan-edit:hover { color: var(--text); }
+.plan-inline-input {
+  background: transparent; border: none; border-bottom: 1px solid var(--border2);
+  color: var(--text); padding: 1px 2px; font-family: inherit; font-size: .8rem;
+  width: 100%; min-width: 0; border-radius: 0;
+}
+.plan-inline-input:focus { outline: none; border-bottom-color: var(--white); }
+
+[data-theme="yorha"] .plans-backdrop { background: rgba(69,65,56,0.40); }
+[data-theme="yorha"] .plan-item:hover { background: rgba(69,65,56,0.05); }
+[data-theme="yorha"] .plan-name-input:focus,
+[data-theme="yorha"] .plan-inline-input:focus { border-bottom-color: var(--white); }
 </style>
 </head>
 <body>
@@ -481,6 +569,7 @@ tr:last-child td { border-bottom: none; }
       <button class="theme-btn" data-theme-btn="yorha" onclick="setTheme('yorha')">YoRHa</button>
     </div>
     <span id="invCount" style="font-size:.62rem;color:var(--faint);letter-spacing:.08em"></span>
+    <button class="btn btn-outline" onclick="openPlans()">Plans</button>
     <button class="btn btn-outline" onclick="openInv()">Inventory</button>
   </div>
 </header>
@@ -506,6 +595,9 @@ tr:last-child td { border-bottom: none; }
       <div>
         <label>Quantity</label>
         <input type="number" id="qty" value="1" min="1" max="99999" oninput="recalc()">
+      </div>
+      <div style="align-self:flex-end">
+        <button class="btn btn-sm" id="savePlanBtn" onclick="savePlan()">+ Save Plan</button>
       </div>
     </div>
   </div>
@@ -540,6 +632,31 @@ tr:last-child td { border-bottom: none; }
   </div>
 
 </main>
+
+<!-- ── Plans panel ──────────────────────────────────────────────────────────── -->
+<div class="plans-overlay hidden" id="plansOverlay">
+  <div class="plans-panel">
+    <div class="plans-header">
+      <h2>Craft Plans</h2>
+      <button class="btn btn-sm btn-outline" onclick="closePlans()">✕ Close</button>
+    </div>
+    <div class="plans-toolbar">
+      <button class="btn btn-sm" onclick="savePlan(true)" style="width:100%">+ Save Current Plan</button>
+    </div>
+    <div class="plan-new-form hidden" id="planNewForm">
+      <div class="plan-form-label">Plan Name</div>
+      <input class="plan-name-input" id="planNameInput" type="text"
+        onkeydown="if(event.key==='Enter')confirmSavePlan();if(event.key==='Escape')cancelSavePlan()">
+      <div class="plan-form-btns">
+        <button class="btn btn-sm" onclick="confirmSavePlan()">Save</button>
+        <button class="btn btn-sm btn-outline" onclick="cancelSavePlan()">Cancel</button>
+      </div>
+    </div>
+    <div class="plans-count" id="plansCount"></div>
+    <div class="plans-list" id="plansList"></div>
+  </div>
+  <div class="plans-backdrop" onclick="closePlans()"></div>
+</div>
 
 <!-- ── Inventory panel ──────────────────────────────────────────────────────── -->
 <div class="inv-overlay hidden" id="invOverlay">
@@ -1067,6 +1184,134 @@ function clearInv() {
   INV = {}; saveInv(); renderInvList(document.getElementById('invSearch').value); recalc();
 }
 
+// ── Plans ─────────────────────────────────────────────────────────────────────
+let PLANS = [];
+let activePlanId = null;
+let _pendingSave = null;
+
+function loadPlansData() {
+  try { PLANS = JSON.parse(localStorage.getItem('gz_plans') || '[]'); } catch { PLANS = []; }
+}
+function savePlansData() { localStorage.setItem('gz_plans', JSON.stringify(PLANS)); }
+
+function openPlans() {
+  document.getElementById('plansOverlay').classList.remove('hidden');
+  renderPlansList();
+}
+function closePlans() {
+  cancelSavePlan();
+  document.getElementById('plansOverlay').classList.add('hidden');
+}
+
+function savePlan(fromPanel = false) {
+  const item = document.getElementById('itemSelect').value;
+  const qty  = Math.max(1, parseInt(document.getElementById('qty').value) || 1);
+  if (!item) {
+    const sel = document.getElementById('itemSelect');
+    sel.style.borderBottomColor = 'var(--red)';
+    setTimeout(() => sel.style.borderBottomColor = '', 1000);
+    return;
+  }
+  _pendingSave = { item, qty };
+  const inp = document.getElementById('planNameInput');
+  inp.value = `${item} ×${qty}`;
+  document.getElementById('planNewForm').classList.remove('hidden');
+  openPlans();
+  inp.focus(); inp.select();
+}
+
+function confirmSavePlan() {
+  if (!_pendingSave) return;
+  const inp  = document.getElementById('planNameInput');
+  const name = inp.value.trim() || `${_pendingSave.item} ×${_pendingSave.qty}`;
+  const plan = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+    name, item: _pendingSave.item, qty: _pendingSave.qty,
+    savedAt: new Date().toLocaleString()
+  };
+  PLANS.push(plan);
+  savePlansData();
+  activePlanId = plan.id;
+  _pendingSave = null;
+  document.getElementById('planNewForm').classList.add('hidden');
+  renderPlansList();
+}
+
+function cancelSavePlan() {
+  _pendingSave = null;
+  document.getElementById('planNewForm').classList.add('hidden');
+}
+
+function loadPlan(id) {
+  const plan = PLANS.find(p => p.id === id);
+  if (!plan) return;
+  activePlanId = id;
+  document.getElementById('categorySelect').value = 'all';
+  populateItemSelect('all');
+  const sel = document.getElementById('itemSelect');
+  if ([...sel.options].some(o => o.value === plan.item)) sel.value = plan.item;
+  document.getElementById('qty').value = plan.qty;
+  recalc();
+  closePlans();
+}
+
+function deletePlan(id) {
+  PLANS = PLANS.filter(p => p.id !== id);
+  if (activePlanId === id) activePlanId = null;
+  savePlansData();
+  renderPlansList();
+}
+
+function startRenamePlan(id, btn) {
+  const item = btn.closest('.plan-item');
+  const nameEl = item.querySelector('.plan-name');
+  const inp = document.createElement('input');
+  inp.className = 'plan-inline-input';
+  inp.value = nameEl.textContent;
+  inp.onkeydown = e => {
+    if (e.key === 'Enter')  confirmRenamePlan(id, inp, nameEl);
+    if (e.key === 'Escape') cancelRenamePlan(inp, nameEl);
+  };
+  inp.onblur = () => confirmRenamePlan(id, inp, nameEl);
+  nameEl.replaceWith(inp);
+  inp.focus(); inp.select();
+}
+
+function confirmRenamePlan(id, inp, nameEl) {
+  if (!inp.isConnected) return;
+  const plan = PLANS.find(p => p.id === id);
+  const name = inp.value.trim();
+  if (plan && name) { plan.name = name; savePlansData(); nameEl.textContent = name; }
+  else nameEl.textContent = plan ? plan.name : inp.value;
+  inp.replaceWith(nameEl);
+}
+
+function cancelRenamePlan(inp, nameEl) {
+  if (!inp.isConnected) return;
+  inp.replaceWith(nameEl);
+}
+
+function renderPlansList() {
+  const list  = document.getElementById('plansList');
+  const count = document.getElementById('plansCount');
+  count.textContent = PLANS.length ? `${PLANS.length} plan${PLANS.length > 1 ? 's' : ''} saved` : '';
+  if (!PLANS.length) {
+    list.innerHTML = `<div class="plans-empty">No plans saved.<br>Select an item and click<br><em>+ Save Plan</em>.</div>`;
+    return;
+  }
+  list.innerHTML = [...PLANS].reverse().map(p => {
+    const isActive = p.id === activePlanId;
+    return `<div class="plan-item ${isActive ? 'active' : ''}">
+      <div class="plan-info" onclick="loadPlan('${p.id}')">
+        <div class="plan-name">${p.name}</div>
+        <div class="plan-meta">${p.savedAt}</div>
+      </div>
+      <button class="plan-edit" title="Rename" onclick="startRenamePlan('${p.id}',this)">✎</button>
+      <button class="plan-del"  title="Delete" onclick="deletePlan('${p.id}')">✕</button>
+    </div>`;
+  }).join('');
+}
+
 // ── Theme ─────────────────────────────────────────────────────────────────────
 function setTheme(name) {
   document.documentElement.dataset.theme = name;
@@ -1079,6 +1324,7 @@ function setTheme(name) {
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 loadInv();
+loadPlansData();
 buildSelector();
 updateInvCount();
 setTheme(localStorage.getItem('gz_theme') || 'nier');
